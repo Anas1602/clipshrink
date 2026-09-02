@@ -17,8 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Google Analytics 4 */}
+      <body
+        className={`${inter.className} bg-slate-950 text-slate-100 antialiased`}>
+        {/* Google Analytics 4 Scripts inside Body */}
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-42HGTD9K87"
@@ -31,9 +32,7 @@ export default function RootLayout({
             gtag('config', 'G-42HGTD9K87');
           `}
         </Script>
-      </head>
-      <body
-        className={`${inter.className} bg-slate-950 text-slate-100 antialiased`}>
+
         {/* Navigation Bar */}
         <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
