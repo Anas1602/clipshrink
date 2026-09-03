@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://www.clipshrink.com/sitemap.xml",
+    sitemap: "https://clipshrink.com/sitemap.xml",
   };
 }

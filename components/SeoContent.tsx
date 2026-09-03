@@ -1,33 +1,163 @@
 import React from "react";
 import Link from "next/link";
-import {
-  ShieldCheck,
-  Zap,
-  Scissors,
-  Smartphone,
-  Lock,
-  HelpCircle,
-} from "lucide-react";
+import { Zap, Scissors, Smartphone, Lock, HelpCircle } from "lucide-react";
 
-export default function SeoContent() {
+export type SpokeType =
+  | "home"
+  | "discord-8mb"
+  | "gmail-25mb"
+  | "whatsapp"
+  | "10mb";
+
+interface SeoContentProps {
+  type?: SpokeType;
+}
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
+  home: [
+    {
+      question:
+        "How does client-side video compression work without uploading files?",
+      answer:
+        "ClipShrink compiles industry-standard FFmpeg software into WebAssembly (WASM), allowing your web browser to re-encode video data directly using your device's local processor. Your files never touch an external server.",
+    },
+    {
+      question:
+        "Will compressing my video reduce audio quality or remove sound tracks?",
+      answer:
+        "No. ClipShrink preserves stereo AAC audio at 96 kbps, keeping voice chat and sound effects clear while dedicating 90% of the byte budget to video clarity.",
+    },
+    {
+      question: "What video formats are supported for compression?",
+      answer:
+        "ClipShrink accepts MP4, Apple QuickTime MOV, WebM, and MKV files, outputting a universally playable H.264 MP4 file.",
+    },
+    {
+      question:
+        "How does ClipShrink guarantee the video stays below the target size?",
+      answer:
+        "Our engine calculates the exact target bitrate based on the duration of your video and applies a safety buffer to ensure high-motion scenes do not exceed your selected megabyte limit.",
+    },
+  ],
+  "discord-8mb": [
+    {
+      question: "Why does Discord reject videos larger than 8MB or 10MB?",
+      answer:
+        "Discord enforces a strict upload ceiling (10MB for newer accounts, historically 8MB) for non-Nitro users to control server bandwidth. ClipShrink targets ~7.5MB to guarantee successful uploads on any Discord client.",
+    },
+    {
+      question: "What is the longest video clip I can fit into 8MB on Discord?",
+      answer:
+        "For fast-paced gaming clips (Valorant, Fortnite, Call of Duty), 30 to 60 seconds at 720p compress with great clarity. For talking-head or screen recordings with low motion, clips up to 2–3 minutes fit cleanly under 8MB.",
+    },
+    {
+      question: "Can I compress iPhone .MOV gaming clips to send on Discord?",
+      answer:
+        "Yes. ClipShrink converts Apple QuickTime MOV and HEVC container files into Discord-safe H.264 MP4 format with web-optimized faststart headers.",
+    },
+    {
+      question: "Do I need Discord Nitro to share compressed videos?",
+      answer:
+        "No. ClipShrink is designed specifically so free Discord users can share clips without paying for Nitro subscriptions.",
+    },
+  ],
+  "gmail-25mb": [
+    {
+      question: "Why does Gmail force videos into Google Drive links?",
+      answer:
+        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~24MB so it attaches directly as an inline file.",
+    },
+    {
+      question:
+        "Does this 25MB compression work for Outlook and Apple Mail as well?",
+      answer:
+        "Yes. Outlook enforces a 20MB–25MB limit and Apple Mail uses 20MB. Our 25MB preset ensures seamless direct emailing across all standard email clients.",
+    },
+    {
+      question:
+        "Will work presentations and screen recordings remain readable at 25MB?",
+      answer:
+        "Yes. 25MB is a large data budget. Screen recordings and presentation videos up to 10–15 minutes remain crisp and text stays completely legible.",
+    },
+  ],
+  whatsapp: [
+    {
+      question: "What is WhatsApp's video file size limit?",
+      answer:
+        "WhatsApp enforces a strict 16MB file size ceiling for videos sent as media attachments on both mobile and WhatsApp Web.",
+    },
+    {
+      question: "Why does WhatsApp Web fail to send certain MP4 files?",
+      answer:
+        "WhatsApp Web requires videos to be encoded with the H.264 video codec and AAC audio in an MP4 container with faststart metadata. ClipShrink automatically applies these exact compatibility standards.",
+    },
+    {
+      question: "Can I compress videos for WhatsApp status updates?",
+      answer:
+        "Yes. Compressing your video under 16MB prevents WhatsApp from aggressively re-compressing and blurring your status videos on their servers.",
+    },
+  ],
+  "10mb": [
+    {
+      question: "Why compress a video to exactly 10MB?",
+      answer:
+        "10MB is the standard file upload threshold for Discord, Slack free workspaces, various government portal submissions, and job application forms.",
+    },
+    {
+      question: "How does the 10MB bitrate calculation work?",
+      answer:
+        "ClipShrink takes your video length and calculates: Total Bitrate = (9.5MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB.",
+    },
+  ],
+};
+
+export default function SeoContent({ type = "home" }: SeoContentProps) {
+  const faqs = FAQ_DATA[type] || FAQ_DATA.home;
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto mt-16 space-y-16 text-slate-300">
+      {/* Dynamic FAQ Schema for this specific page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       {/* 3 Step Guide */}
-      <section>
-        <h2 className="text-2xl font-bold text-white text-center mb-8">
-          How to Compress Video for Discord, Gmail, and WhatsApp
+      <section aria-labelledby="how-it-works-heading">
+        <h2
+          id="how-it-works-heading"
+          className="text-2xl font-bold text-white text-center mb-8">
+          How to Compress Video Online for Free
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center mb-4">
               1
             </div>
-            <h3 className="font-semibold text-white mb-2">
-              Select Your Target Preset
+            <h3 className="font-semibold text-white mb-2 text-base">
+              Select Target Limit
             </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Choose Discord (8MB), Gmail (25MB), or WhatsApp (16MB). Our engine
-              automatically calculates the exact bitrate needed.
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Choose your target limit (Discord 8MB, WhatsApp 16MB, Gmail 25MB,
+              or Custom). Our engine computes the exact bitrate needed.
             </p>
           </div>
 
@@ -35,12 +165,12 @@ export default function SeoContent() {
             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center mb-4">
               2
             </div>
-            <h3 className="font-semibold text-white mb-2">
-              Drop Your Video File
+            <h3 className="font-semibold text-white mb-2 text-base">
+              Drop Video File
             </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               Drop any MP4, MOV, WebM, or MKV. Compression executes entirely
-              inside your browser memory with WebAssembly.
+              inside your browser memory using WebAssembly.
             </p>
           </div>
 
@@ -48,30 +178,32 @@ export default function SeoContent() {
             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center mb-4">
               3
             </div>
-            <h3 className="font-semibold text-white mb-2">
-              Download Discord-Safe File
+            <h3 className="font-semibold text-white mb-2 text-base">
+              Download Output
             </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               Get your optimized MP4 file instantly. No watermarks, no account
-              registration, and zero data leaves your machine.
+              registration, and zero data transmitted to servers.
             </p>
           </div>
         </div>
       </section>
 
       {/* Feature Highlights Grid */}
-      <section className="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
-        <h2 className="text-xl font-bold text-white mb-6">
-          Why Use ClipShrink Over Traditional Cloud Compressors?
+      <section
+        aria-labelledby="features-heading"
+        className="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
+        <h2 id="features-heading" className="text-xl font-bold text-white mb-6">
+          Why Choose ClipShrink Over Cloud Compressors?
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="flex gap-4">
-            <Lock className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+            <Lock className="w-6 h-6 text-indigo-400 shrink-0" />
             <div>
-              <h4 className="font-semibold text-white text-sm">
+              <h3 className="font-semibold text-white text-sm">
                 100% Client-Side Privacy
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
+              </h3>
+              <p className="text-xs text-slate-300 mt-1">
                 Your personal clips and work videos never touch external cloud
                 servers. Zero storage, zero leaks.
               </p>
@@ -79,12 +211,12 @@ export default function SeoContent() {
           </div>
 
           <div className="flex gap-4">
-            <Zap className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+            <Zap className="w-6 h-6 text-indigo-400 shrink-0" />
             <div>
-              <h4 className="font-semibold text-white text-sm">
-                Zero Server Upload Wait
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
+              <h3 className="font-semibold text-white text-sm">
+                Zero Server Upload Queue
+              </h3>
+              <p className="text-xs text-slate-300 mt-1">
                 Traditional tools force you to upload 100MB over slow
                 connections. ClipShrink processes directly on your CPU.
               </p>
@@ -92,138 +224,82 @@ export default function SeoContent() {
           </div>
 
           <div className="flex gap-4">
-            <Scissors className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+            <Scissors className="w-6 h-6 text-indigo-400 shrink-0" />
             <div>
-              <h4 className="font-semibold text-white text-sm">
-                Automated Bitrate Math
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
-                No guesswork. We compute two-pass bitrate ratios so your file
-                lands right under the limit.
+              <h3 className="font-semibold text-white text-sm">
+                Dynamic Bitrate Capping
+              </h3>
+              <p className="text-xs text-slate-300 mt-1">
+                We calculate custom VBR bitrates with safety margins so your
+                video finishes right below the target size.
               </p>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <Smartphone className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+            <Smartphone className="w-6 h-6 text-indigo-400 shrink-0" />
             <div>
-              <h4 className="font-semibold text-white text-sm">
-                iPhone MOV & HDR Support
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Effortlessly convert heavy Apple QuickTime (.MOV) and HEVC
-                recordings to Discord-safe MP4 format.
+              <h3 className="font-semibold text-white text-sm">
+                Apple MOV & WebM Support
+              </h3>
+              <p className="text-xs text-slate-300 mt-1">
+                Effortlessly convert heavy Apple QuickTime (.MOV) and WebM
+                recordings to universally compatible MP4 files.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQs Section (From Chapter 2.4 Research) */}
-      <section>
+      {/* FAQs Section */}
+      <section aria-labelledby="faq-heading">
         <div className="flex items-center gap-3 mb-8">
           <HelpCircle className="w-6 h-6 text-indigo-400" />
-          <h2 className="text-2xl font-bold text-white">
+          <h2 id="faq-heading" className="text-2xl font-bold text-white">
             Frequently Asked Questions
           </h2>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              Why does Discord reject videos larger than 8MB / 10MB?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Discord enforces a strict 10MB (historically 8MB) upload limit for
-              free tier accounts to minimize server bandwidth costs. ClipShrink
-              targets ~7.8MB to ensure your file uploads seamlessly without
-              requiring Discord Nitro.
-            </p>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              Will compressing my video remove audio or ruin sound quality?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              No. ClipShrink preserves full stereo AAC audio at 96 kbps, which
-              keeps gaming voice chat and sound effects clear while focusing 90%
-              of the byte budget on video clarity.
-            </p>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              How does client-side compression work if my files are not
-              uploaded?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              We compile industry-standard FFmpeg software into WebAssembly
-              (WASM), allowing your modern web browser (Chrome, Edge, Firefox,
-              Safari) to re-encode video data directly using your
-              device`&apos;`s local processor.
-            </p>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              What is the maximum video length I can shrink to 8MB?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              For crisp 720p gaming clips, 30 to 90 seconds compress cleanly.
-              For talking-head or tutorial videos with minimal motion, videos up
-              to 3–4 minutes can easily fit under 8MB.
-            </p>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              Why does my video fail to upload on WhatsApp Web?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              WhatsApp Web enforces a 16MB file ceiling and rejects specific
-              video codecs like MKV or raw AV1. ClipShrink converts all uploads
-              into standard H.264 MP4 with faststart flags for instant playback.
-            </p>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-            <h3 className="font-semibold text-white mb-2">
-              Can I compress iPhone .MOV videos for Discord?
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Yes. ClipShrink reads Apple QuickTime MOV and HEVC container files
-              directly and converts them into universally playable MP4 files
-              compatible with all Discord desktop and mobile apps.
-            </p>
-          </div>
+          {faqs.map((faq, index) => (
+            <div
+              key={index}
+              className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
+              <h3 className="font-semibold text-white mb-2 text-base">
+                {faq.question}
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {faq.answer}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Hub Links Grid (Chapter 3.4) */}
+      {/* Related Spokes Grid */}
       <section className="border-t border-slate-800 pt-12 pb-8">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
           Related Platform Presets
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <Link
             href="/video/compress-for-discord-8mb"
-            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition-colors">
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             Discord 8MB Compressor →
           </Link>
           <Link
             href="/video/compress-for-gmail-25mb"
-            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition-colors">
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             Gmail 25MB Attachment →
           </Link>
           <Link
             href="/video/compress-for-whatsapp"
-            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition-colors">
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             WhatsApp 16MB Video →
           </Link>
           <Link
             href="/video/compress-mp4-to-10mb"
-            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition-colors">
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             Compress MP4 to 10MB →
           </Link>
         </div>

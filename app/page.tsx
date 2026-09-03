@@ -48,7 +48,7 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
         <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
           8MB Video Compressor <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             For Discord, Email & WhatsApp
           </span>
         </h1>
@@ -62,7 +62,7 @@ export default function HomePage() {
       <VideoCompressor initialPreset="discord-8" />
 
       {/* Server-Rendered Below The Fold Content (SEO) */}
-      <SeoContent />
+      <SeoContent type="home" />
     </main>
   );
 }

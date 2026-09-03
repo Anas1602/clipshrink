@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import {
@@ -26,12 +26,21 @@ interface VideoCompressorProps {
   initialPreset?: TargetPreset;
 }
 
+const REAL_LIMIT_BYTES: Record<Exclude<TargetPreset, "custom">, number> = {
+  "discord-8": 8 * 1024 * 1024,
+  "whatsapp-16": 16 * 1024 * 1024,
+  "gmail-25": 25 * 1024 * 1024,
+  "discord-nitro-50": 50 * 1024 * 1024,
+};
+
+const MAX_ENCODE_ATTEMPTS = 3;
+const RETRY_BITRATE_FACTOR = 0.82;
+
 export default function VideoCompressor({
   initialPreset = "discord-8",
 }: VideoCompressorProps) {
   const [loaded, setLoaded] = useState(false);
-  // Default to true so you don't need to call setState inside useEffect
-  const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(true);
+  const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [preset, setPreset] = useState<TargetPreset>(initialPreset);
@@ -48,54 +57,43 @@ export default function VideoCompressor({
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load FFmpeg WebAssembly on component mount
-  useEffect(() => {
-    let isMounted = true;
+  const ensureFFmpegLoaded = async (): Promise<boolean> => {
+    if (ffmpegRef.current && loaded) return true;
 
-    const loadFFmpeg = async () => {
-      try {
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-        const ffmpeg = new FFmpeg();
+    try {
+      setIsLoadingFFmpeg(true);
+      setStatusMessage("Initializing browser engine...");
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+      const ffmpeg = new FFmpeg();
 
-        ffmpeg.on("progress", ({ progress }) => {
-          setProgress(Math.round(Math.max(0, Math.min(1, progress)) * 100));
-        });
+      ffmpeg.on("progress", ({ progress: p }) => {
+        setProgress(Math.round(Math.max(0, Math.min(1, p)) * 100));
+      });
 
-        await ffmpeg.load({
-          coreURL: await toBlobURL(
-            `${baseURL}/ffmpeg-core.js`,
-            "text/javascript",
-          ),
-          wasmURL: await toBlobURL(
-            `${baseURL}/ffmpeg-core.wasm`,
-            "application/wasm",
-          ),
-        });
+      await ffmpeg.load({
+        coreURL: await toBlobURL(
+          `${baseURL}/ffmpeg-core.js`,
+          "text/javascript",
+        ),
+        wasmURL: await toBlobURL(
+          `${baseURL}/ffmpeg-core.wasm`,
+          "application/wasm",
+        ),
+      });
 
-        if (isMounted) {
-          ffmpegRef.current = ffmpeg;
-          setLoaded(true);
-        }
-      } catch (err) {
-        console.error("Failed to load FFmpeg:", err);
-        if (isMounted) {
-          setError(
-            "Failed to initialize local browser engine. Please use Chrome, Edge, or Firefox.",
-          );
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoadingFFmpeg(false);
-        }
-      }
-    };
-
-    loadFFmpeg();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      ffmpegRef.current = ffmpeg;
+      setLoaded(true);
+      setIsLoadingFFmpeg(false);
+      return true;
+    } catch (err) {
+      console.error("Failed to load FFmpeg:", err);
+      setError(
+        "Your browser does not support local WebAssembly processing. Please use Chrome, Edge, or Firefox.",
+      );
+      setIsLoadingFFmpeg(false);
+      return false;
+    }
+  };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -104,7 +102,7 @@ export default function VideoCompressor({
     }
   };
 
-  const handleFileSelected = (file: File) => {
+  const handleFileSelected = async (file: File) => {
     if (!file.type.startsWith("video/")) {
       setError("Please upload a valid video file (.mp4, .mov, .webm, .mkv).");
       return;
@@ -122,102 +120,170 @@ export default function VideoCompressor({
       setVideoDuration(videoElement.duration);
     };
     videoElement.src = URL.createObjectURL(file);
+
+    ensureFFmpegLoaded();
   };
 
   const getTargetMB = (): number => {
     switch (preset) {
       case "discord-8":
-        return 7.8;
+        return 7.4;
       case "whatsapp-16":
-        return 15.5;
+        return 15.0;
       case "gmail-25":
-        return 24.5;
+        return 23.8;
       case "discord-nitro-50":
-        return 49.0;
+        return 48.0;
       case "custom":
-        return customSizeMB * 0.96;
+        return Math.max(1, customSizeMB * 0.94);
       default:
-        return 7.8;
+        return 7.4;
     }
   };
 
+  const getRealLimitBytes = (): number => {
+    if (preset === "custom") return customSizeMB * 1024 * 1024;
+    return REAL_LIMIT_BYTES[preset];
+  };
+
+  const toSafeBlob = (data: Uint8Array, mimeType: string): Blob => {
+    const arrayBuffer = data.buffer.slice(
+      data.byteOffset,
+      data.byteOffset + data.byteLength,
+    ) as ArrayBuffer;
+    return new Blob([arrayBuffer], { type: mimeType });
+  };
+
+  const runEncode = async (
+    videoBitrateK: number,
+    inputFileName: string,
+    outputFileName: string,
+  ) => {
+    const ffmpeg = ffmpegRef.current!;
+    const audioBitrateK = 96;
+
+    await ffmpeg.exec([
+      "-i",
+      inputFileName,
+      "-b:v",
+      `${videoBitrateK}k`,
+      "-maxrate",
+      `${Math.floor(videoBitrateK * 1.15)}k`,
+      "-bufsize",
+      `${Math.floor(videoBitrateK * 1.5)}k`,
+      "-vf",
+      "scale=-2:min(720\\,ih)",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "faster",
+      "-c:a",
+      "aac",
+      "-b:a",
+      `${audioBitrateK}k`,
+      "-movflags",
+      "+faststart",
+      "-y",
+      outputFileName,
+    ]);
+
+    const data = (await ffmpeg.readFile(outputFileName)) as Uint8Array;
+    return toSafeBlob(data, "video/mp4");
+  };
+
   const startCompression = async () => {
-    if (!videoFile || !ffmpegRef.current || !loaded) return;
+    if (!videoFile) return;
+
+    const isReady = await ensureFFmpegLoaded();
+    if (!isReady || !ffmpegRef.current) return;
+
+    const ffmpeg = ffmpegRef.current;
+    const inputFileName =
+      "input_" + videoFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+    const outputFileName = "output_compressed.mp4";
 
     try {
       setIsCompressing(true);
       setError(null);
       setProgress(0);
-      setStatusMessage("Preparing video in local memory...");
-
-      const ffmpeg = ffmpegRef.current;
-      const inputFileName =
-        "input_" + videoFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
-      const outputFileName = "output_compressed.mp4";
+      setStatusMessage("Preparing video in memory...");
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(videoFile));
 
       const targetMB = getTargetMB();
+      const realLimitBytes = getRealLimitBytes();
       const duration = videoDuration > 0 ? videoDuration : 10;
       const audioBitrateK = 96;
-      const totalBitrateK = Math.floor((targetMB * 8192) / duration);
-      const videoBitrateK = Math.max(100, totalBitrateK - audioBitrateK);
 
-      setStatusMessage(
-        "Compressing with browser WebAssembly (100% private)...",
+      let videoBitrateK = Math.max(
+        100,
+        Math.floor((targetMB * 8192) / duration) - audioBitrateK,
       );
 
-      await ffmpeg.exec([
-        "-i",
-        inputFileName,
-        "-b:v",
-        `${videoBitrateK}k`,
-        "-maxrate",
-        `${Math.floor(videoBitrateK * 1.2)}k`,
-        "-bufsize",
-        `${Math.floor(videoBitrateK * 2)}k`,
-        "-vf",
-        "scale=-2:min(720\\,ih)",
-        "-c:v",
-        "libx264",
-        "-preset",
-        "faster",
-        "-c:a",
-        "aac",
-        "-b:a",
-        `${audioBitrateK}k`,
-        "-movflags",
-        "+faststart",
-        outputFileName,
-      ]);
+      let blob: Blob | null = null;
 
-      const data = await ffmpeg.readFile(outputFileName);
-      const blob = new Blob([data as Uint8Array<ArrayBuffer>], {
-        type: "video/mp4",
-      });
+      for (let attempt = 1; attempt <= MAX_ENCODE_ATTEMPTS; attempt++) {
+        setStatusMessage(
+          attempt === 1
+            ? "Compressing with local WebAssembly (100% private)..."
+            : `Output ran over target, re-encoding at a lower bitrate (attempt ${attempt} of ${MAX_ENCODE_ATTEMPTS})...`,
+        );
+
+        blob = await runEncode(videoBitrateK, inputFileName, outputFileName);
+
+        if (blob.size <= realLimitBytes) {
+          break;
+        }
+
+        if (attempt === MAX_ENCODE_ATTEMPTS) {
+          setError(
+            `This video is hard to compress at this length and resolution. The best we could get was ${(blob.size / (1024 * 1024)).toFixed(2)} MB, slightly over your ${(realLimitBytes / (1024 * 1024)).toFixed(1)} MB target. Try a shorter clip or a lower custom size.`,
+          );
+          break;
+        }
+
+        videoBitrateK = Math.max(
+          80,
+          Math.floor(videoBitrateK * RETRY_BITRATE_FACTOR),
+        );
+      }
+
+      if (!blob) throw new Error("Encoding failed to produce output.");
+
       const url = URL.createObjectURL(blob);
-
       setCompressedBlobUrl(url);
       setOutputFileSize(blob.size);
       setIsCompressing(false);
       setProgress(100);
       setStatusMessage("Compression complete!");
 
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
+      if (blob.size <= realLimitBytes) {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      }
     } catch (err) {
       console.error("Compression error:", err);
       setError(
         "An error occurred during compression. Please try a different video or file format.",
       );
       setIsCompressing(false);
+    } finally {
+      try {
+        await ffmpeg.deleteFile(inputFileName);
+        await ffmpeg.deleteFile(outputFileName);
+      } catch {
+        // ignore - files may not exist if we errored before writing them
+      }
     }
   };
 
   const resetAll = () => {
+    if (compressedBlobUrl) {
+      URL.revokeObjectURL(compressedBlobUrl);
+    }
     setVideoFile(null);
     setCompressedBlobUrl(null);
     setOutputFileSize(null);
@@ -242,7 +308,7 @@ export default function VideoCompressor({
                 : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800"
             }`}>
             <span className="font-bold">Discord (8MB)</span>
-            <span className="text-[11px] opacity-80">Free User Limit</span>
+            <span className="text-[11px] text-slate-300">Free User Limit</span>
           </button>
 
           <button
@@ -254,7 +320,7 @@ export default function VideoCompressor({
                 : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800"
             }`}>
             <span className="font-bold">Gmail (25MB)</span>
-            <span className="text-[11px] opacity-80">Email Attachment</span>
+            <span className="text-[11px] text-slate-300">Email Attachment</span>
           </button>
 
           <button
@@ -266,7 +332,9 @@ export default function VideoCompressor({
                 : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800"
             }`}>
             <span className="font-bold">WhatsApp (16MB)</span>
-            <span className="text-[11px] opacity-80">Direct Send Limit</span>
+            <span className="text-[11px] text-slate-300">
+              Direct Send Limit
+            </span>
           </button>
 
           <button
@@ -278,7 +346,7 @@ export default function VideoCompressor({
                 : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800"
             }`}>
             <span className="font-bold">Nitro (50MB)</span>
-            <span className="text-[11px] opacity-80">High Quality</span>
+            <span className="text-[11px] text-slate-300">High Quality</span>
           </button>
 
           <button
@@ -290,16 +358,21 @@ export default function VideoCompressor({
                 : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800"
             }`}>
             <span className="font-bold">Custom</span>
-            <span className="text-[11px] opacity-80">{customSizeMB} MB</span>
+            <span className="text-[11px] text-slate-300">
+              {customSizeMB} MB
+            </span>
           </button>
         </div>
 
         {preset === "custom" && (
           <div className="mt-4 p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center gap-4">
-            <span className="text-sm font-medium text-slate-300">
+            <label
+              htmlFor="custom-size-input"
+              className="text-sm font-medium text-slate-200">
               Target Size (MB):
-            </span>
+            </label>
             <input
+              id="custom-size-input"
               type="number"
               min="1"
               max="500"
@@ -313,13 +386,22 @@ export default function VideoCompressor({
         )}
       </div>
 
-      {/* Dropzone Area */}
+      {/* Accessible Dropzone */}
       {!videoFile ? (
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Upload video file"
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleFileDrop}
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-950/50 hover:bg-indigo-950/20 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center group">
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          className="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-950/50 hover:bg-indigo-950/20 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center group focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <input
             ref={fileInputRef}
             type="file"
@@ -338,17 +420,16 @@ export default function VideoCompressor({
               browse files
             </span>
           </h3>
-          <p className="text-sm text-slate-400 max-w-sm">
+          <p className="text-sm text-slate-300 max-w-sm">
             Supports MP4, MOV, WebM, MKV. Processed 100% locally in your
             browser.
           </p>
           <div className="mt-4 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-3 py-1 rounded-full">
-            <Zap className="w-3.5 h-3.5" /> No uploads to external servers •
+            <Zap className="w-3.5 h-3.5" /> No uploads to external servers -
             100% Private
           </div>
         </div>
       ) : (
-        /* Video Selected / Compression Stage */
         <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
             <div className="flex items-center gap-3">
@@ -360,8 +441,8 @@ export default function VideoCompressor({
                   {videoFile.name}
                 </h4>
                 <p className="text-xs text-slate-400">
-                  Original: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB •
-                  Target: &lt;{getTargetMB().toFixed(1)} MB
+                  Original: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                  &middot; Max target: {getTargetMB().toFixed(1)} MB
                 </p>
               </div>
             </div>
@@ -374,7 +455,6 @@ export default function VideoCompressor({
             )}
           </div>
 
-          {/* Progress / Output Display */}
           {isCompressing && (
             <div className="py-6 space-y-3">
               <div className="flex justify-between text-xs text-slate-300">
@@ -385,11 +465,11 @@ export default function VideoCompressor({
               </div>
               <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300 rounded-full"
+                  className="bg-linear-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-[11px] text-slate-500 text-center">
+              <p className="text-[11px] text-slate-400 text-center">
                 Heavy processing runs inside your browser. Please keep this tab
                 open.
               </p>
@@ -433,20 +513,19 @@ export default function VideoCompressor({
             <div className="pt-6">
               <button
                 onClick={startCompression}
-                disabled={!loaded || isLoadingFFmpeg}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 text-base">
-                <Sparkles className="w-5 h-5" /> Compress Video to &lt;
-                {getTargetMB().toFixed(1)}MB Now
+                disabled={isLoadingFFmpeg}
+                className="w-full bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 text-base">
+                <Sparkles className="w-5 h-5" />
+                Compress Video (Target: {getTargetMB().toFixed(1)}MB)
               </button>
             </div>
           )}
         </div>
       )}
 
-      {/* Error Banner */}
       {error && (
         <div className="mt-4 p-4 bg-red-950/50 border border-red-800/80 rounded-xl text-red-300 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
+          <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
           <span>{error}</span>
         </div>
       )}
