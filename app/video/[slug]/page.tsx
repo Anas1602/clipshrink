@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import VideoCompressor from "@/components/VideoCompressor";
 import SeoContent, { SpokeType } from "@/components/SeoContent";
 
@@ -63,6 +64,72 @@ const SPOKES: Record<string, SpokeData> = {
     description:
       "Compress MP4 files to under 10MB online for free. Fast WebAssembly processing with zero server uploads.",
   },
+  "compress-video-for-email": {
+    slug: "compress-video-for-email",
+    preset: "gmail-25",
+    spokeType: "email-20mb",
+    title: "Compress Video for Email (Under 20MB) — Free Online",
+    h1: "Compress Video for Email Attachments",
+    subtitle:
+      "Shrink video file sizes below 20MB for Outlook, Apple Mail, and Yahoo. Attach videos directly without cloud drive links.",
+    description:
+      "Compress MP4 and MOV videos under 20MB for email attachments. Fast in-browser processing with no file uploads or watermarks.",
+  },
+  "compress-video-for-outlook": {
+    slug: "compress-video-for-outlook",
+    preset: "gmail-25",
+    spokeType: "outlook-20mb",
+    title: "Compress Video for Outlook (20MB Limit) — ClipShrink",
+    h1: "Compress Video for Outlook Attachments",
+    subtitle:
+      "Reduce video file sizes to under Outlook's 20MB limit. Perfect for workplace screen recordings and presentation decks.",
+    description:
+      "Reduce MP4 and MOV video size under 20MB for Microsoft Outlook attachments directly in your browser without quality loss.",
+  },
+  "compress-video-for-slack": {
+    slug: "compress-video-for-slack",
+    preset: "custom",
+    spokeType: "slack-10mb",
+    title: "Compress Video for Slack (Under 10MB) — ClipShrink",
+    h1: "Compress Video for Slack",
+    subtitle:
+      "Shrink bug demos and video recordings under 10MB for instant playback in Slack messages without clogging storage.",
+    description:
+      "Compress videos for Slack under 10MB. 100% private browser processing with zero upload queues.",
+  },
+  "compress-mp4-to-50mb": {
+    slug: "compress-mp4-to-50mb",
+    preset: "discord-nitro-50",
+    spokeType: "nitro-50mb",
+    title: "Compress MP4 to 50MB Online Free — ClipShrink",
+    h1: "Compress Video to 50MB",
+    subtitle:
+      "Shrink large video files down to 50MB for Discord Nitro Basic, web forms, and online portals.",
+    description:
+      "Compress MP4 files to under 50MB online for free. In-browser WebAssembly encoding with no watermarks.",
+  },
+  "compress-mp4-to-25mb": {
+    slug: "compress-mp4-to-25mb",
+    preset: "gmail-25",
+    spokeType: "25mb-custom",
+    title: "Compress MP4 to 25MB Free Online — ClipShrink",
+    h1: "Compress MP4 Video to 25MB",
+    subtitle:
+      "Automated bitrate scaling to shrink any MP4 video under 25MB without audio degradation.",
+    description:
+      "Reduce MP4 files to under 25MB online. Safe, client-side WebAssembly video compressor with instant download.",
+  },
+  "compress-mov-for-discord": {
+    slug: "compress-mov-for-discord",
+    preset: "discord-8",
+    spokeType: "mov-to-discord",
+    title: "Compress & Convert iPhone MOV for Discord (8MB) — ClipShrink",
+    h1: "Compress iPhone MOV for Discord",
+    subtitle:
+      "Convert heavy Apple QuickTime MOV clips into Discord-compatible 8MB MP4 files that play directly in chat.",
+    description:
+      "Convert and compress iPhone MOV videos to Discord-friendly 8MB MP4 format directly in your browser. 100% private.",
+  },
 };
 
 export async function generateStaticParams() {
@@ -121,25 +188,67 @@ export default async function SpokePage({
     },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://clipshrink.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Video Compressors",
+        item: "https://clipshrink.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: spoke.h1,
+        item: `https://clipshrink.com/video/${spoke.slug}`,
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 sm:py-16">
+      {/* App Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* Breadcrumb Hierarchy Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
-      <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          {spoke.h1}
-        </h1>
-        <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
-          {spoke.subtitle}
-        </p>
+      <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
+        {/* Visual Breadcrumbs */}
+        <nav
+          aria-label="Breadcrumbs"
+          className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-4">
+          <Link href="/" className="hover:text-white transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-slate-200">{spoke.h1}</span>
+        </nav>
+
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            {spoke.h1}
+          </h1>
+          <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+            {spoke.subtitle}
+          </p>
+        </div>
       </div>
 
       <VideoCompressor initialPreset={spoke.preset} />
-
-      {/* Render unique de-duplicated content & schema for this spoke */}
       <SeoContent type={spoke.spokeType} />
     </main>
   );

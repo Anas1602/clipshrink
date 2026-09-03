@@ -8,6 +8,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/video/compress-for-gmail-25mb",
     "/video/compress-for-whatsapp",
     "/video/compress-mp4-to-10mb",
+    "/video/compress-video-for-email",
+    "/video/compress-video-for-outlook",
+    "/video/compress-video-for-slack",
+    "/video/compress-mp4-to-50mb",
+    "/video/compress-mp4-to-25mb",
+    "/video/compress-mov-for-discord",
   ];
 
   const spokeEntries: MetadataRoute.Sitemap = spokeUrls.map((path) => ({

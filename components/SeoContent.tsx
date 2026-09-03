@@ -7,7 +7,13 @@ export type SpokeType =
   | "discord-8mb"
   | "gmail-25mb"
   | "whatsapp"
-  | "10mb";
+  | "10mb"
+  | "email-20mb"
+  | "outlook-20mb"
+  | "slack-10mb"
+  | "nitro-50mb"
+  | "25mb-custom"
+  | "mov-to-discord";
 
 interface SeoContentProps {
   type?: SpokeType;
@@ -48,7 +54,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Why does Discord reject videos larger than 8MB or 10MB?",
       answer:
-        "Discord enforces a strict upload ceiling (10MB for newer accounts, historically 8MB) for non-Nitro users to control server bandwidth. ClipShrink targets ~7.5MB to guarantee successful uploads on any Discord client.",
+        "Discord enforces a strict upload ceiling (10MB for newer accounts, historically 8MB) for non-Nitro users to control server bandwidth. ClipShrink targets ~7.4MB to guarantee successful uploads on any Discord client.",
     },
     {
       question: "What is the longest video clip I can fit into 8MB on Discord?",
@@ -70,7 +76,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Why does Gmail force videos into Google Drive links?",
       answer:
-        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~24MB so it attaches directly as an inline file.",
+        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~23.8MB so it attaches directly as an inline file.",
     },
     {
       question:
@@ -114,6 +120,59 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
         "ClipShrink takes your video length and calculates: Total Bitrate = (9.5MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB.",
     },
   ],
+  "email-20mb": [
+    {
+      question: "What is the standard video attachment limit for email?",
+      answer:
+        "Most mainstream email providers (Outlook, Apple Mail, Yahoo) cap direct attachments between 20MB and 25MB. ClipShrink targets 19MB to ensure delivery without attachment bounces.",
+    },
+    {
+      question: "How do I avoid Google Drive or OneDrive cloud upload links?",
+      answer:
+        "Compressing your video under 20MB allows your email software to attach the raw MP4 file directly into the email body rather than forcing an external cloud storage link.",
+    },
+  ],
+  "outlook-20mb": [
+    {
+      question: "What is Outlook's maximum file attachment size?",
+      answer:
+        "Microsoft Outlook and Exchange servers enforce a default attachment limit of 20MB for external recipients. ClipShrink safely compresses videos to ~19MB to guarantee delivery.",
+    },
+    {
+      question:
+        "Will screen recordings and presentation slides stay clear at 20MB?",
+      answer:
+        "Yes. We use standard H.264 video compression capped at 720p HD, which keeps text, slides, and code demos crisp and legible.",
+    },
+  ],
+  "slack-10mb": [
+    {
+      question: "Can I send videos on Slack without upgrading to a paid tier?",
+      answer:
+        "Free Slack workspaces quickly fill up file limits and struggle with large uploads. Compressing video recordings to 10MB ensures instant inline playback inside Slack channels.",
+    },
+  ],
+  "nitro-50mb": [
+    {
+      question: "What is the upload limit for Discord Nitro Basic?",
+      answer:
+        "Discord Nitro Basic offers a 50MB upload limit. This preset allows you to retain higher bitrates (1080p 60fps gaming clips) while guaranteeing the file stays strictly under 50MB.",
+    },
+  ],
+  "25mb-custom": [
+    {
+      question: "Why compress a video to exactly 25MB?",
+      answer:
+        "25MB is the universal ceiling across major web portals, including web email services, job board application forms, and customer support ticket systems.",
+    },
+  ],
+  "mov-to-discord": [
+    {
+      question: "Why won't Discord play my iPhone MOV video inline?",
+      answer:
+        "Apple QuickTime (.MOV) files recorded with HEVC/H.265 often download as an attachment on Discord rather than playing directly in chat. ClipShrink re-encodes MOV videos into web-friendly H.264 MP4 with faststart headers under 8MB.",
+    },
+  ],
 };
 
 export default function SeoContent({ type = "home" }: SeoContentProps) {
@@ -134,7 +193,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-16 space-y-16 text-slate-300">
-      {/* Dynamic FAQ Schema for this specific page */}
+      {/* FAQ Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -189,7 +248,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         </div>
       </section>
 
-      {/* Feature Highlights Grid */}
+      {/* Feature Highlights */}
       <section
         aria-labelledby="features-heading"
         className="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
@@ -218,7 +277,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
               </h3>
               <p className="text-xs text-slate-300 mt-1">
                 Traditional tools force you to upload 100MB over slow
-                connections. ClipShrink processes directly on your CPU.
+                connections. ClipShrink processes directly on your device CPU.
               </p>
             </div>
           </div>
@@ -276,10 +335,10 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         </div>
       </section>
 
-      {/* Related Spokes Grid */}
+      {/* Related Spokes Grid (Hub & Spoke Internal Links) */}
       <section className="border-t border-slate-800 pt-12 pb-8">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
-          Related Platform Presets
+          Popular Platform Presets
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <Link
@@ -301,6 +360,36 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             href="/video/compress-mp4-to-10mb"
             className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             Compress MP4 to 10MB →
+          </Link>
+          <Link
+            href="/video/compress-video-for-email"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Email Video (20MB) →
+          </Link>
+          <Link
+            href="/video/compress-video-for-outlook"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Outlook 20MB Reducer →
+          </Link>
+          <Link
+            href="/video/compress-video-for-slack"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Slack 10MB Compressor →
+          </Link>
+          <Link
+            href="/video/compress-mov-for-discord"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            iPhone MOV for Discord →
+          </Link>
+          <Link
+            href="/video/compress-mp4-to-50mb"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Compress Video to 50MB →
+          </Link>
+          <Link
+            href="/video/compress-mp4-to-25mb"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Compress Video to 25MB →
           </Link>
         </div>
       </section>
