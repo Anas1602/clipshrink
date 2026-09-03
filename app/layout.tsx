@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${inter.className} bg-slate-950 text-slate-100 antialiased`}>
-        {/* Google Analytics 4 Scripts inside Body */}
+        {/* Google Analytics 4 Scripts */}
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-42HGTD9K87"
@@ -44,7 +45,7 @@ export default function RootLayout({
               </span>
               ClipShrink
             </Link>
-            <nav className="flex items-center gap-6 text-xs sm:text-sm text-slate-400">
+            <nav className="flex items-center gap-6 text-xs sm:text-sm text-slate-300">
               <Link href="/" className="hover:text-white transition-colors">
                 Compressor
               </Link>
@@ -64,10 +65,13 @@ export default function RootLayout({
 
         {children}
 
-        {/* Footer */}
-        <footer className="border-t border-slate-900 bg-slate-950 py-12 text-center text-xs text-slate-500">
+        {/* Cookie Consent Banner */}
+        <CookieConsent />
+
+        {/* Footer with Accessible Contrast */}
+        <footer className="border-t border-slate-900 bg-slate-950 py-12 text-center text-xs text-slate-400">
           <div className="max-w-6xl mx-auto px-4 space-y-4">
-            <div className="flex flex-wrap justify-center gap-6 text-slate-400">
+            <div className="flex flex-wrap justify-center gap-6 text-slate-300">
               <Link href="/about" className="hover:underline">
                 About ClipShrink
               </Link>
