@@ -13,7 +13,11 @@ export type SpokeType =
   | "slack-10mb"
   | "nitro-50mb"
   | "25mb-custom"
-  | "mov-to-discord";
+  | "mov-to-discord"
+  | "iphone-compress"
+  | "iphone-large-video"
+  | "twitter"
+  | "100mb";
 
 interface SeoContentProps {
   type?: SpokeType;
@@ -54,12 +58,12 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Why does Discord reject videos larger than 8MB or 10MB?",
       answer:
-        "Discord enforces a strict upload ceiling (10MB for newer accounts, historically 8MB) for non-Nitro users to control server bandwidth. ClipShrink targets ~7.4MB to guarantee successful uploads on any Discord client.",
+        "Discord enforces a strict upload ceiling for non-Nitro users to control server bandwidth. ClipShrink targets ~7.2MB to guarantee successful uploads on any Discord client.",
     },
     {
       question: "What is the longest video clip I can fit into 8MB on Discord?",
       answer:
-        "For fast-paced gaming clips (Valorant, Fortnite, Call of Duty), 30 to 60 seconds at 720p compress with great clarity. For talking-head or screen recordings with low motion, clips up to 2–3 minutes fit cleanly under 8MB.",
+        "For gaming clips, 30 to 60 seconds at 720p compress with great clarity. For screen recordings or low-motion clips, up to 2–3 minutes fit cleanly under 8MB.",
     },
     {
       question: "Can I compress iPhone .MOV gaming clips to send on Discord?",
@@ -76,19 +80,19 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Why does Gmail force videos into Google Drive links?",
       answer:
-        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~23.8MB so it attaches directly as an inline file.",
+        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~22.8MB so it attaches directly as an inline file.",
     },
     {
       question:
         "Does this 25MB compression work for Outlook and Apple Mail as well?",
       answer:
-        "Yes. Outlook enforces a 20MB–25MB limit and Apple Mail uses 20MB. Our 25MB preset ensures seamless direct emailing across all standard email clients.",
+        "Yes. Outlook and Apple Mail enforce 20MB–25MB limits. Our 25MB preset ensures seamless direct emailing across all standard email clients.",
     },
     {
       question:
         "Will work presentations and screen recordings remain readable at 25MB?",
       answer:
-        "Yes. 25MB is a large data budget. Screen recordings and presentation videos up to 10–15 minutes remain crisp and text stays completely legible.",
+        "Yes. 25MB provides ample data budget. Screen recordings and presentation videos up to 10 minutes remain crisp and text stays completely legible.",
     },
   ],
   whatsapp: [
@@ -117,7 +121,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "How does the 10MB bitrate calculation work?",
       answer:
-        "ClipShrink takes your video length and calculates: Total Bitrate = (9.5MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB.",
+        "ClipShrink calculates: Total Bitrate = (9.4MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB.",
     },
   ],
   "email-20mb": [
@@ -173,6 +177,62 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
         "Apple QuickTime (.MOV) files recorded with HEVC/H.265 often download as an attachment on Discord rather than playing directly in chat. ClipShrink re-encodes MOV videos into web-friendly H.264 MP4 with faststart headers under 8MB.",
     },
   ],
+  "iphone-compress": [
+    {
+      question:
+        "How do I compress a video on iPhone without downloading an app from the App Store?",
+      answer:
+        "Open ClipShrink in Safari on your iPhone, select your file directly from the Photos app or Files, and choose your target size. WebAssembly compresses the video directly in Safari memory without installing third-party apps.",
+    },
+    {
+      question:
+        "Why are iPhone videos recorded in MOV and HEVC format so large?",
+      answer:
+        "iOS records at high bitrates using 4K 60fps or HEVC containers. A 30-second clip can easily exceed 80MB. ClipShrink transcodes and downscales it to web-optimized 720p H.264 MP4.",
+    },
+    {
+      question: "Is it safe to compress personal iPhone videos on ClipShrink?",
+      answer:
+        "Yes. Unlike cloud conversion apps that upload your family clips to unknown servers, ClipShrink processes 100% on your device. Your video never leaves your iPhone.",
+    },
+  ],
+  "iphone-large-video": [
+    {
+      question: "How do I send a large video from an iPhone via text or email?",
+      answer:
+        "Carrier SMS/MMS limits video to 3.5MB, and email limits attachments to 20MB–25MB. By using ClipShrink directly in Safari, you can shrink your iPhone video down under 16MB or 25MB and share it immediately.",
+    },
+    {
+      question:
+        "Will compressing prevent iPhone videos from appearing blurry in text messages?",
+      answer:
+        "Yes! When cellular carriers auto-compress your video over SMS/MMS, they destroy visual quality. Pre-compressing with ClipShrink gives you fine-tuned H.264 bitrate control so your video stays sharp.",
+    },
+  ],
+  twitter: [
+    {
+      question: "What are the video upload requirements for Twitter / X?",
+      answer:
+        "Twitter / X supports MP4 and MOV formats up to 512MB for regular users, but large uploads often fail or stall during processing. Compressing to 25MB ensures instantaneous upload and fast transcoding on Twitter servers.",
+    },
+    {
+      question: "Why does Twitter compress my uploaded video into low quality?",
+      answer:
+        "Twitter's server-side encoder aggressively recompresses high-bitrate files. Uploading a video pre-optimized at 720p 30fps H.264 with AAC audio bypasses severe server re-encoding artifacts.",
+    },
+  ],
+  "100mb": [
+    {
+      question: "Why compress a video to under 100MB?",
+      answer:
+        "100MB is the maximum upload limit for many corporate intranets, Discord Nitro standard tiers, learning management portals (Canvas, Blackboard), and job application portals.",
+    },
+    {
+      question: "Can long-form videos fit under 100MB?",
+      answer:
+        "Yes. 100MB allows up to 15–20 minutes of 720p presentation or webcam recordings to maintain sharp text and clear audio without exceeding portal upload limits.",
+    },
+  ],
 };
 
 export default function SeoContent({ type = "home" }: SeoContentProps) {
@@ -216,7 +276,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
               Choose your target limit (Discord 8MB, WhatsApp 16MB, Gmail 25MB,
-              or Custom). Our engine computes the exact bitrate needed.
+              100MB, or Custom). Our engine calculates the exact bitrate needed.
             </p>
           </div>
 
@@ -335,10 +395,10 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         </div>
       </section>
 
-      {/* Related Spokes Grid (Hub & Spoke Internal Links) */}
+      {/* Hub & Spoke Internal Link Fortress (All 14 Spokes) */}
       <section className="border-t border-slate-800 pt-12 pb-8">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
-          Popular Platform Presets
+          Popular Platform Presets & Guides
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <Link
@@ -355,6 +415,26 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             href="/video/compress-for-whatsapp"
             className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
             WhatsApp 16MB Video →
+          </Link>
+          <Link
+            href="/video/compress-video-on-iphone"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Compress Video on iPhone →
+          </Link>
+          <Link
+            href="/video/how-to-send-large-video-from-iphone"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Send Large Video iPhone →
+          </Link>
+          <Link
+            href="/video/compress-video-for-twitter"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Compress for Twitter / X →
+          </Link>
+          <Link
+            href="/video/compress-mp4-to-100mb"
+            className="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-200 hover:text-white transition-colors">
+            Compress Video to 100MB →
           </Link>
           <Link
             href="/video/compress-mp4-to-10mb"

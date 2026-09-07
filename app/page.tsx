@@ -22,23 +22,36 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "ClipShrink Video Compressor",
-    url: "https://clipshrink.com",
-    description:
-      "Free client-side video compressor to reduce video files below 8MB for Discord, Gmail, and WhatsApp.",
-    applicationCategory: "MultimediaApplication",
-    operatingSystem: "Any",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "ClipShrink",
+        url: "https://clipshrink.com",
+        logo: "https://clipshrink.com/icon.svg",
+        sameAs: [
+          "https://github.com/your-username/in-browser-video-compressor-wasm",
+        ],
+      },
+      {
+        "@type": "WebApplication",
+        name: "ClipShrink Video Compressor",
+        url: "https://clipshrink.com",
+        description:
+          "Free client-side video compressor to reduce video files below 8MB for Discord, Gmail, and WhatsApp.",
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "Any",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+    ],
   };
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 sm:py-16">
-      {/* Structured Data for SEO */}
+      {/* Structured Data for SEO & Entity Graph */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -58,10 +71,10 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Interactive Tool Widget (Client Component) */}
+      {/* Interactive Tool Widget */}
       <VideoCompressor initialPreset="discord-8" />
 
-      {/* Server-Rendered Below The Fold Content (SEO) */}
+      {/* Server-Rendered Below The Fold Content */}
       <SeoContent type="home" />
     </main>
   );

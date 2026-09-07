@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import VideoCompressor from "@/components/VideoCompressor";
+import VideoCompressor, { TargetPreset } from "@/components/VideoCompressor";
 import SeoContent, { SpokeType } from "@/components/SeoContent";
 
 interface SpokeData {
   slug: string;
-  preset:
-    | "discord-8"
-    | "whatsapp-16"
-    | "gmail-25"
-    | "discord-nitro-50"
-    | "custom";
+  preset: TargetPreset;
   spokeType: SpokeType;
   title: string;
   h1: string;
@@ -27,7 +22,7 @@ const SPOKES: Record<string, SpokeData> = {
     title: "8MB Video Compressor for Discord — Free & No Upload (2026)",
     h1: "8MB Video Compressor for Discord",
     subtitle:
-      "Shrink your gaming clips and videos below Discord’s 8MB/10MB limit instantly in your browser. 100% private, no watermarks.",
+      "Shrink your gaming clips and videos below Discord’s 8MB limit instantly in your browser. 100% private, no watermarks.",
     description:
       "Compress MP4, MOV, and WebM videos below Discord’s 8MB upload limit. Fast client-side WebAssembly compression with no file size limits.",
   },
@@ -52,6 +47,51 @@ const SPOKES: Record<string, SpokeData> = {
       "Compress video clips below WhatsApp’s 16MB file ceiling for instant sending on WhatsApp Web and mobile without quality loss.",
     description:
       "Reduce video size for WhatsApp attachments. Converts to standard H.264 MP4 with optimal 16MB bitrate limits.",
+  },
+  "compress-video-on-iphone": {
+    slug: "compress-video-on-iphone",
+    preset: "whatsapp-16",
+    spokeType: "iphone-compress",
+    title: "Compress Video on iPhone Free (No App Required) — ClipShrink",
+    h1: "Compress Video on iPhone (No App Needed)",
+    subtitle:
+      "Reduce large iPhone camera roll videos and MOV files directly in mobile Safari. Fast, private, zero third-party app installations.",
+    description:
+      "Compress video on iPhone for free without installing apps. In-browser client-side WebAssembly compressor for iOS Safari.",
+  },
+  "how-to-send-large-video-from-iphone": {
+    slug: "how-to-send-large-video-from-iphone",
+    preset: "whatsapp-16",
+    spokeType: "iphone-large-video",
+    title:
+      "How to Send Large Video from iPhone (Under 16MB & 25MB) — ClipShrink",
+    h1: "How to Send Large Videos from iPhone",
+    subtitle:
+      "Shrink iPhone videos under email, SMS, and messaging limits directly in your browser without blurry carrier compression.",
+    description:
+      "Learn how to send large videos from iPhone by compressing them below SMS, WhatsApp, and Gmail attachment limits locally.",
+  },
+  "compress-video-for-twitter": {
+    slug: "compress-video-for-twitter",
+    preset: "twitter-25",
+    spokeType: "twitter",
+    title: "Compress Video for Twitter / X Online Free — ClipShrink",
+    h1: "Compress Video for Twitter / X",
+    subtitle:
+      "Optimize video files for Twitter/X. Bypass server upload errors and maintain sharp 720p HD clarity with automated bitrate scaling.",
+    description:
+      "Compress video for Twitter / X under upload thresholds online for free. Fast WebAssembly processing with zero server uploads.",
+  },
+  "compress-mp4-to-100mb": {
+    slug: "compress-mp4-to-100mb",
+    preset: "file-100",
+    spokeType: "100mb",
+    title: "Compress Video to 100MB Free Online — ClipShrink",
+    h1: "Compress Video to 100MB",
+    subtitle:
+      "Shrink large MP4 and MOV videos under 100MB for portal uploads, university LMS platforms, and Discord Nitro.",
+    description:
+      "Compress MP4 and MOV videos under 100MB online for free. WebAssembly browser encoding with zero watermarks.",
   },
   "compress-mp4-to-10mb": {
     slug: "compress-mp4-to-10mb",
@@ -227,7 +267,7 @@ export default async function SpokePage({
       />
 
       <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
-        {/* Visual Breadcrumbs */}
+        {/* Breadcrumbs */}
         <nav
           aria-label="Breadcrumbs"
           className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-4">
