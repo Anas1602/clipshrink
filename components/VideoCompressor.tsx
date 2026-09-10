@@ -146,7 +146,7 @@ export default function VideoCompressor({
   const getTargetMB = (): number => {
     switch (preset) {
       case "discord-8":
-        return 7.2; // Conservative target buffer to hit <8MB on 1st pass
+        return 7.2; // Safe buffer for 8MB limit
       case "whatsapp-16":
         return 14.8;
       case "gmail-25":
@@ -184,7 +184,7 @@ export default function VideoCompressor({
     const ffmpeg = ffmpegRef.current!;
     const audioBitrateK = 96;
 
-    // Fast bilinear scaling + ultrafast preset + fastdecode tune
+    // High-velocity encoding parameters: fast_bilinear + ultrafast + fastdecode
     await ffmpeg.exec([
       "-i",
       inputFileName,
@@ -197,13 +197,13 @@ export default function VideoCompressor({
       "-vf",
       "scale=-2:min(720\\,ih)",
       "-sws_flags",
-      "fast_bilinear",
+      "fast_bilinear", // 3x faster downscaling
       "-r",
-      "30",
+      "30", // Cap at 30 FPS
       "-c:v",
       "libx264",
       "-preset",
-      "ultrafast",
+      "ultrafast", // Fastest possible WebAssembly encoding velocity
       "-tune",
       "fastdecode",
       "-c:a",
@@ -301,7 +301,7 @@ export default function VideoCompressor({
         await ffmpeg.deleteFile(inputFileName);
         await ffmpeg.deleteFile(outputFileName);
       } catch {
-        // cleanup ignore
+        // Safe to ignore
       }
     }
   };

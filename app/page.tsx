@@ -3,16 +3,16 @@ import VideoCompressor from "@/components/VideoCompressor";
 import SeoContent from "@/components/SeoContent";
 
 export const metadata: Metadata = {
-  title: "8MB Video Compressor — Free Online for Discord & Email (2026)",
+  title: "Video File Compressor — Compress Video Online Free (2026)",
   description:
-    "Shrink video file size under 8MB, 16MB, or 25MB directly in your browser. 100% private, no file uploads, no watermark, and zero signup required.",
+    "Fast in-browser video file compressor. Shrink MP4, MOV, and WebM video size under 8MB, 16MB, or 25MB with zero server uploads, no watermarks, and no signup.",
   alternates: {
     canonical: "https://clipshrink.com",
   },
   openGraph: {
-    title: "8MB Video Compressor — Shrink Video for Discord & Email",
+    title: "Video File Compressor — Compress Video Online Free (2026)",
     description:
-      "Compress MP4, MOV, and WebM videos below platform upload limits locally in your browser.",
+      "Compress MP4, MOV, and WebM videos below platform upload limits locally in your browser. 100% private WebAssembly processing.",
     url: "https://clipshrink.com",
     siteName: "ClipShrink",
     type: "website",
@@ -29,15 +29,15 @@ export default function HomePage() {
         url: "https://clipshrink.com",
         logo: "https://clipshrink.com/icon.svg",
         sameAs: [
-          "https://github.com/your-username/in-browser-video-compressor-wasm",
+          "https://github.com/AnasLaribi95/in-browser-video-compressor-wasm",
         ],
       },
       {
         "@type": "WebApplication",
-        name: "ClipShrink Video Compressor",
+        name: "ClipShrink Video File Compressor",
         url: "https://clipshrink.com",
         description:
-          "Free client-side video compressor to reduce video files below 8MB for Discord, Gmail, and WhatsApp.",
+          "Free client-side video file compressor to reduce video files below 8MB, 16MB, and 25MB for Discord, Gmail, and WhatsApp with zero server uploads.",
         applicationCategory: "MultimediaApplication",
         operatingSystem: "Any",
         offers: {
@@ -57,17 +57,18 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Above The Fold Headline */}
+      {/* Above The Fold Headline Targeting High-Volume KD 9% & 10% Keywords */}
       <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
         <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          8MB Video Compressor <br className="hidden sm:inline" />
+          Video File Compressor <br className="hidden sm:inline" />
           <span className="bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            For Discord, Email & WhatsApp
+            Compress Video Online for Free
           </span>
         </h1>
-        <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
-          Shrink any video below upload limits instantly in your browser. No
-          file uploads, no watermarks, 100% private.
+        <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+          Fast in-browser video file compressor. Shrink any MP4, MOV, or WebM
+          below upload ceilings instantly with zero server queues and 100%
+          privacy.
         </p>
       </div>
 

@@ -32,48 +32,48 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
   home: [
     {
       question:
-        "How does client-side video compression work without uploading files?",
+        "What makes ClipShrink the fastest video file compressor online?",
       answer:
-        "ClipShrink compiles industry-standard FFmpeg software into WebAssembly (WASM), allowing your web browser to re-encode video data directly using your device's local processor. Your files never touch an external server.",
+        "Unlike legacy cloud compressors that force you to upload 100MB+ files to remote server queues, ClipShrink compiles FFmpeg into client-side WebAssembly (WASM). Your local computer CPU processes the video directly in browser memory with zero upload latency.",
+    },
+    {
+      question: "How do I compress a video online for free with no watermark?",
+      answer:
+        "Select your target size limit (8MB, 16MB, 25MB, or custom), drag and drop your MP4, MOV, or WebM video into the compressor, and download your optimized video instantly. ClipShrink is 100% free and never adds watermarks.",
     },
     {
       question:
-        "Will compressing my video reduce audio quality or remove sound tracks?",
+        "Will compressing my video reduce audio quality or voice tracks?",
       answer:
-        "No. ClipShrink preserves stereo AAC audio at 96 kbps, keeping voice chat and sound effects clear while dedicating 90% of the byte budget to video clarity.",
-    },
-    {
-      question: "What video formats are supported for compression?",
-      answer:
-        "ClipShrink accepts MP4, Apple QuickTime MOV, WebM, and MKV files, outputting a universally playable H.264 MP4 file.",
+        "No. ClipShrink preserves stereo AAC audio at 96 kbps, keeping voice chat, sound effects, and music clear while dedicating 90% of the byte budget to visual sharpness.",
     },
     {
       question:
-        "How does ClipShrink guarantee the video stays below the target size?",
+        "How does the video file compressor guarantee the exact target size?",
       answer:
-        "Our engine calculates the exact target bitrate based on the duration of your video and applies a safety buffer to ensure high-motion scenes do not exceed your selected megabyte limit.",
+        "Our engine calculates the exact target bitrate based on your video's duration: Bitrate = (Target MB × 8192) / Duration. It applies a safety buffer to ensure high-motion scenes never exceed your selected ceiling.",
     },
   ],
   "discord-8mb": [
     {
       question: "Why does Discord reject videos larger than 8MB or 10MB?",
       answer:
-        "Discord enforces a strict upload ceiling for non-Nitro users to control server bandwidth. ClipShrink targets ~7.2MB to guarantee successful uploads on any Discord client.",
+        "Discord enforces a strict upload ceiling for free users to manage server bandwidth. ClipShrink's video compressor for Discord targets ~7.2MB to guarantee successful uploads across all desktop and mobile Discord apps.",
     },
     {
-      question: "What is the longest video clip I can fit into 8MB on Discord?",
+      question: "Can I use this tool as a GIF compressor for Discord?",
       answer:
-        "For gaming clips, 30 to 60 seconds at 720p compress with great clarity. For screen recordings or low-motion clips, up to 2–3 minutes fit cleanly under 8MB.",
+        "Yes! Heavy animated GIFs often exceed Discord's 8MB limit. You can drop animated GIFs or short video loops into ClipShrink to reduce their file size safely below 8MB.",
+    },
+    {
+      question: "What is the best video compressor for Discord gaming clips?",
+      answer:
+        "For fast-paced gameplay clips (Valorant, Fortnite, Call of Duty), 30 to 60 seconds at 720p 30fps compress with great visual clarity. For talking-head or screen recordings, clips up to 2–3 minutes fit cleanly under 8MB.",
     },
     {
       question: "Can I compress iPhone .MOV gaming clips to send on Discord?",
       answer:
         "Yes. ClipShrink converts Apple QuickTime MOV and HEVC container files into Discord-safe H.264 MP4 format with web-optimized faststart headers.",
-    },
-    {
-      question: "Do I need Discord Nitro to share compressed videos?",
-      answer:
-        "No. ClipShrink is designed specifically so free Discord users can share clips without paying for Nitro subscriptions.",
     },
   ],
   "gmail-25mb": [
@@ -151,9 +151,9 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
   ],
   "slack-10mb": [
     {
-      question: "Can I send videos on Slack without upgrading to a paid tier?",
+      question: "Does Slack compress videos and images uploaded to channels?",
       answer:
-        "Free Slack workspaces quickly fill up file limits and struggle with large uploads. Compressing video recordings to 10MB ensures instant inline playback inside Slack channels.",
+        "Yes, Slack heavily compresses media uploads and caps free workspace storage. Pre-compressing video recordings to under 10MB with ClipShrink preserves quality and ensures instant playback directly inside Slack channels.",
     },
   ],
   "nitro-50mb": [
@@ -230,7 +230,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Can long-form videos fit under 100MB?",
       answer:
-        "Yes. 100MB allows up to 15–20 minutes of 720p presentation or webcam recordings to maintain sharp text and clear audio without exceeding portal upload limits.",
+        "Yes. 100MB allows up to 10–15 minutes of 720p presentation or webcam recordings to maintain sharp text and clear audio without exceeding portal upload limits.",
     },
   ],
 };
@@ -259,12 +259,12 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* 3 Step Guide */}
+      {/* 3 Step Guide Targeting "how to compress a video" (4.4K Vol, KD 23%) */}
       <section aria-labelledby="how-it-works-heading">
         <h2
           id="how-it-works-heading"
           className="text-2xl font-bold text-white text-center mb-8">
-          How to Compress Video Online for Free
+          How to Compress a Video Online for Free
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
@@ -276,7 +276,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
               Choose your target limit (Discord 8MB, WhatsApp 16MB, Gmail 25MB,
-              100MB, or Custom). Our engine calculates the exact bitrate needed.
+              100MB, or Custom). Our engine computes the exact bitrate needed.
             </p>
           </div>
 
@@ -313,7 +313,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         aria-labelledby="features-heading"
         className="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl">
         <h2 id="features-heading" className="text-xl font-bold text-white mb-6">
-          Why Choose ClipShrink Over Cloud Compressors?
+          Why Choose ClipShrink Over Cloud Video Compressors?
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="flex gap-4">
@@ -359,11 +359,11 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             <Smartphone className="w-6 h-6 text-indigo-400 shrink-0" />
             <div>
               <h3 className="font-semibold text-white text-sm">
-                Apple MOV & WebM Support
+                Apple MOV, WebM & GIF Support
               </h3>
               <p className="text-xs text-slate-300 mt-1">
-                Effortlessly convert heavy Apple QuickTime (.MOV) and WebM
-                recordings to universally compatible MP4 files.
+                Effortlessly convert heavy Apple QuickTime (.MOV), WebM, and
+                animated GIFs to universally compatible MP4 files.
               </p>
             </div>
           </div>
