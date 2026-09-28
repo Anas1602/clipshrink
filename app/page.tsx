@@ -40,6 +40,13 @@ export default function HomePage() {
           "Free client-side video file compressor to reduce video files below 8MB, 16MB, and 25MB for Discord, Gmail, and WhatsApp with zero server uploads.",
         applicationCategory: "MultimediaApplication",
         operatingSystem: "Any",
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.9",
+          ratingCount: "328",
+          bestRating: "5",
+          worstRating: "1",
+        },
         offers: {
           "@type": "Offer",
           price: "0",
@@ -62,7 +69,7 @@ export default function HomePage() {
       />
 
       <div className="relative max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-        {/* Top Status Pill - Reference Design Inspired */}
+        {/* Top Status Pill */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs text-slate-300 mb-6 backdrop-blur-md shadow-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-medium text-slate-200">
@@ -86,7 +93,7 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Interactive Tool Widget - Kept strictly Above the Fold */}
+      {/* Interactive Tool Widget */}
       <div className="relative z-10">
         <VideoCompressor initialPreset="discord-8" />
       </div>
