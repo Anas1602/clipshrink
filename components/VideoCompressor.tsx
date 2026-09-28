@@ -13,6 +13,10 @@ import {
   RefreshCw,
   Zap,
   Clock,
+  ShieldCheck,
+  Cpu,
+  Sliders,
+  ArrowRight,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -63,7 +67,7 @@ export default function VideoCompressor({
   const loadingPromiseRef = useRef<Promise<boolean> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Concurrency-safe engine loader (safe for repeated hover/drag calls)
+  // Concurrency-safe engine loader
   const ensureFFmpegLoaded = useCallback(async (): Promise<boolean> => {
     if (ffmpegRef.current && loaded) return true;
     if (loadingPromiseRef.current) return loadingPromiseRef.current;
@@ -136,7 +140,6 @@ export default function VideoCompressor({
       return;
     }
 
-    // Clean up previous output blob from browser memory
     if (compressedBlobUrl) {
       URL.revokeObjectURL(compressedBlobUrl);
     }
@@ -155,24 +158,22 @@ export default function VideoCompressor({
     };
     videoElement.src = URL.createObjectURL(file);
 
-    // Warm up engine immediately upon file selection
     ensureFFmpegLoaded();
   };
 
-  // Recalibrated target bitrates to guarantee Attempt #1 completion strictly below limits
   const getTargetMB = (): number => {
     switch (preset) {
       case "discord-8":
-        return 7.0; // Guaranteed < 8.0MB on pass #1
+        return 7.0;
       case "whatsapp-16":
-        return 14.2; // Guaranteed < 16.0MB on pass #1
+        return 14.2;
       case "gmail-25":
       case "twitter-25":
-        return 22.0; // Guaranteed < 25.0MB on pass #1
+        return 22.0;
       case "discord-nitro-50":
-        return 46.5; // Guaranteed < 50.0MB on pass #1
+        return 46.5;
       case "file-100":
-        return 93.0; // Guaranteed < 100.0MB on pass #1
+        return 93.0;
       case "custom":
         return Math.max(1, customSizeMB * 0.9);
       default:
@@ -201,7 +202,6 @@ export default function VideoCompressor({
     const ffmpeg = ffmpegRef.current!;
     const audioBitrateK = 96;
 
-    // High-velocity parameters: fast_bilinear + ultrafast + fastdecode
     await ffmpeg.exec([
       "-i",
       inputFileName,
@@ -254,7 +254,6 @@ export default function VideoCompressor({
       setProgress(0);
       setStatusMessage("Reading video into browser memory...");
 
-      // Free previous blob if user re-runs compression on the same selected file
       if (compressedBlobUrl) {
         URL.revokeObjectURL(compressedBlobUrl);
         setCompressedBlobUrl(null);
@@ -277,19 +276,14 @@ export default function VideoCompressor({
       for (let attempt = 1; attempt <= MAX_ENCODE_ATTEMPTS; attempt++) {
         setStatusMessage(
           attempt === 1
-            ? "Compressing locally with WebAssembly (100% private)..."
+            ? "Compressing locally with WebAssembly..."
             : `Refining bitrate (attempt ${attempt} of ${MAX_ENCODE_ATTEMPTS})...`,
         );
 
         blob = await runEncode(videoBitrateK, inputFileName, outputFileName);
 
-        if (blob.size <= realLimitBytes) {
-          break;
-        }
-
-        if (attempt === MAX_ENCODE_ATTEMPTS) {
-          break;
-        }
+        if (blob.size <= realLimitBytes) break;
+        if (attempt === MAX_ENCODE_ATTEMPTS) break;
 
         videoBitrateK = Math.max(
           60,
@@ -324,7 +318,7 @@ export default function VideoCompressor({
         await ffmpeg.deleteFile(inputFileName);
         await ffmpeg.deleteFile(outputFileName);
       } catch {
-        // Safe to ignore if file already cleaned up
+        // Safe to ignore
       }
     }
   };
@@ -341,262 +335,335 @@ export default function VideoCompressor({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 text-white">
-      {/* Target Presets Bar */}
-      <div className="mb-6">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">
-          1. Select Target Platform / Size Limit
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Platform Preset Selector - Modern Segmented Tab Bar */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between px-1 mb-2.5">
+          <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+            <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+            Target Platform & Ceiling
+          </span>
+          <span className="text-[11px] text-slate-500 font-mono">
+            {preset === "custom"
+              ? `${customSizeMB} MB Limit`
+              : `< ${REAL_LIMIT_BYTES[preset] / (1024 * 1024)}MB Safe Target`}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-1.5 p-1.5 bg-slate-900/90 border border-slate-800 rounded-xl backdrop-blur-xl shadow-inner">
           <button
             type="button"
             onClick={() => setPreset("discord-8")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "discord-8"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">Discord (8MB)</span>
-            <span className="text-[10px] text-slate-300">Free Limit</span>
+            <div>Discord</div>
+            <div className="text-[10px] opacity-75">8MB Free</div>
           </button>
 
           <button
             type="button"
             onClick={() => setPreset("whatsapp-16")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "whatsapp-16"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">WhatsApp (16MB)</span>
-            <span className="text-[10px] text-slate-300">Direct Send</span>
+            <div>WhatsApp</div>
+            <div className="text-[10px] opacity-75">16MB Limit</div>
           </button>
 
           <button
             type="button"
             onClick={() => setPreset("gmail-25")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "gmail-25" || preset === "twitter-25"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">Email / X (25MB)</span>
-            <span className="text-[10px] text-slate-300">Attachments</span>
+            <div>Email / X</div>
+            <div className="text-[10px] opacity-75">25MB Attach</div>
           </button>
 
           <button
             type="button"
             onClick={() => setPreset("discord-nitro-50")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "discord-nitro-50"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">Nitro (50MB)</span>
-            <span className="text-[10px] text-slate-300">High Quality</span>
+            <div>Nitro Basic</div>
+            <div className="text-[10px] opacity-75">50MB HQ</div>
           </button>
 
           <button
             type="button"
             onClick={() => setPreset("file-100")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "file-100"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">Portal (100MB)</span>
-            <span className="text-[10px] text-slate-300">Web Uploads</span>
+            <div>Web Portal</div>
+            <div className="text-[10px] opacity-75">100MB Cap</div>
           </button>
 
           <button
             type="button"
             onClick={() => setPreset("custom")}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border flex flex-col items-center justify-center gap-0.5 transition-all ${
+            className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               preset === "custom"
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-200 hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
-            <span className="font-bold">Custom</span>
-            <span className="text-[10px] text-slate-300">
-              {customSizeMB} MB
-            </span>
+            <div>Custom</div>
+            <div className="text-[10px] opacity-75">{customSizeMB}MB Size</div>
           </button>
         </div>
 
         {preset === "custom" && (
-          <div className="mt-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center gap-3">
-            <label
-              htmlFor="custom-size-input"
-              className="text-xs font-medium text-slate-200">
-              Target Size (MB):
-            </label>
-            <input
-              id="custom-size-input"
-              type="number"
-              min="1"
-              max="350"
-              value={customSizeMB}
-              onChange={(e) =>
-                setCustomSizeMB(Math.max(1, Number(e.target.value)))
-              }
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 w-20"
-            />
+          <div className="mt-2.5 p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center justify-between">
+            <span className="text-xs text-slate-300">
+              Specify your exact maximum target file ceiling:
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                id="custom-size-input"
+                type="number"
+                min="1"
+                max="350"
+                value={customSizeMB}
+                onChange={(e) =>
+                  setCustomSizeMB(Math.max(1, Number(e.target.value)))
+                }
+                className="bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-lg px-3 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 w-24 text-right font-mono"
+              />
+              <span className="text-xs text-slate-400 font-medium">MB</span>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Dropzone with Preload Triggers on Hover and Drag */}
-      {!videoFile ? (
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label="Upload video file"
-          onMouseEnter={() => ensureFFmpegLoaded()}
-          onDragEnter={() => ensureFFmpegLoaded()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleFileDrop}
-          onClick={() => fileInputRef.current?.click()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          className="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-950/50 hover:bg-indigo-950/20 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center group focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="video/*,.mp4,.mov,.webm,.mkv"
-            className="hidden"
-            onChange={(e) =>
-              e.target.files?.[0] && handleFileSelected(e.target.files[0])
-            }
-          />
-          <div className="w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Upload className="w-8 h-8 text-indigo-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-white mb-1">
-            Drop your video here or{" "}
-            <span className="text-indigo-400 underline underline-offset-4">
-              browse files
-            </span>
-          </h3>
-          <p className="text-sm text-slate-400 max-w-sm">
-            Supports MP4, iPhone MOV, WebM, MKV. Processed locally in your
-            browser.
-          </p>
-          <div className="mt-4 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-3 py-1 rounded-full">
-            <Zap className="w-3.5 h-3.5" /> Zero file uploads — 100% Client-Side
-          </div>
-        </div>
-      ) : (
-        <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
-                <FileVideo className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white truncate max-w-xs sm:max-w-md">
-                  {videoFile.name}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Original: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                  &middot; Duration: {Math.round(videoDuration)}s &middot;
-                  Target: {getTargetMB().toFixed(1)} MB
-                </p>
-              </div>
+      {/* Main Console Container */}
+      <div className="relative bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden backdrop-blur-xl">
+        {/* Console Header Bar */}
+        <div className="px-5 py-3 border-b border-slate-800/80 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
             </div>
-            {!isCompressing && !compressedBlobUrl && (
-              <button
-                onClick={resetAll}
-                className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer">
-                Choose another file
-              </button>
-            )}
+            <span className="font-mono text-[11px] text-slate-400 ml-2">
+              clipshrink-core v0.12.15 [WASM]
+            </span>
           </div>
 
-          {/* Warning for Long Videos */}
-          {videoDuration > 180 && !compressedBlobUrl && (
-            <div className="mt-4 p-3 bg-amber-950/40 border border-amber-800/50 rounded-xl text-amber-300 text-xs flex items-center gap-2.5">
-              <Clock className="w-4 h-4 shrink-0 text-amber-400" />
-              <span>
-                <strong>Note:</strong> Videos longer than 3 minutes process on
-                your device CPU and may take 1–2 minutes. Please keep this
-                browser tab open.
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Client Memory Ready
+            </span>
+          </div>
+        </div>
+
+        {/* Dropzone / Upload State */}
+        {!videoFile ? (
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Upload video file"
+            onMouseEnter={() => ensureFFmpegLoaded()}
+            onDragEnter={() => ensureFFmpegLoaded()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleFileDrop}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center group hover:bg-indigo-950/10 focus:outline-none">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*,.mp4,.mov,.webm,.mkv"
+              className="hidden"
+              onChange={(e) =>
+                e.target.files?.[0] && handleFileSelected(e.target.files[0])
+              }
+            />
+
+            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 group-hover:scale-105 group-hover:border-indigo-400/40 transition-all shadow-lg shadow-indigo-600/10">
+              <Upload className="w-7 h-7 text-indigo-400" />
+            </div>
+
+            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
+              Drop your video here or{" "}
+              <span className="text-indigo-400 underline underline-offset-4 decoration-indigo-400/40 group-hover:decoration-indigo-400">
+                browse files
+              </span>
+            </h3>
+
+            <p className="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed mb-6">
+              Supports MP4, Apple MOV, WebM, and MKV. Runs locally in your
+              browser memory with zero server uploads.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100%
+                Private
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                <Cpu className="w-3.5 h-3.5 text-indigo-400" /> Local CPU WASM
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                <Zap className="w-3.5 h-3.5 text-amber-400" /> No Watermarks
               </span>
             </div>
-          )}
-
-          {isCompressing && (
-            <div className="py-6 space-y-3">
-              <div className="flex justify-between text-xs text-slate-300">
-                <span>{statusMessage}</span>
-                <span className="font-mono font-bold text-indigo-400">
-                  {progress}%
-                </span>
+          </div>
+        ) : (
+          <div className="p-6 sm:p-8">
+            {/* File Info Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+              <div className="flex items-center gap-3.5">
+                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
+                  <FileVideo className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white truncate max-w-xs sm:max-w-md text-sm sm:text-base">
+                    {videoFile.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 font-mono">
+                    <span>
+                      {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </span>
+                    <span>•</span>
+                    <span>{Math.round(videoDuration)}s duration</span>
+                    <span>•</span>
+                    <span className="text-indigo-400 font-semibold">
+                      Target: {getTargetMB().toFixed(1)} MB
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
-                <div
-                  className="bg-linear-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300 rounded-full"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-slate-400 text-center">
-                Processing runs on your device. Zero data sent to servers.
-              </p>
-            </div>
-          )}
 
-          {compressedBlobUrl && outputFileSize && (
-            <div className="py-6 space-y-4 text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 mb-2">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Video Ready!</h3>
-              <p className="text-sm text-slate-300">
-                Shrunk from{" "}
-                <span className="text-slate-400 line-through">
-                  {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                </span>{" "}
-                down to{" "}
-                <span className="text-emerald-400 font-bold text-base">
-                  {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
-                </span>
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                <a
-                  href={compressedBlobUrl}
-                  download={`clipshrink_${videoFile.name.replace(/\.[^/.]+$/, "")}.mp4`}
-                  className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-emerald-500/20 transition-all text-base">
-                  <Download className="w-5 h-5" /> Download Compressed Video
-                </a>
+              {!isCompressing && !compressedBlobUrl && (
                 <button
                   onClick={resetAll}
-                  className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 px-6 rounded-xl transition-all text-sm cursor-pointer">
-                  <RefreshCw className="w-4 h-4" /> Compress Another Video
+                  className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3 rounded-lg border border-slate-800 hover:bg-slate-800">
+                  Choose another file
+                </button>
+              )}
+            </div>
+
+            {/* Long Video Warning */}
+            {videoDuration > 180 && !compressedBlobUrl && (
+              <div className="mt-4 p-3.5 bg-amber-950/30 border border-amber-800/40 rounded-xl text-amber-300 text-xs flex items-center gap-2.5">
+                <Clock className="w-4 h-4 shrink-0 text-amber-400" />
+                <span>
+                  <strong>Notice:</strong> Videos over 3 minutes run directly on
+                  your device CPU and may take 1–2 minutes. Please keep this
+                  browser tab open.
+                </span>
+              </div>
+            )}
+
+            {/* Compression Progress */}
+            {isCompressing && (
+              <div className="py-8 space-y-4">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-300 font-medium flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                    {statusMessage}
+                  </span>
+                  <span className="font-mono font-bold text-indigo-400 text-sm">
+                    {progress}%
+                  </span>
+                </div>
+
+                <div className="w-full bg-slate-950 border border-slate-800 h-3 rounded-full overflow-hidden p-0.5">
+                  <div
+                    className="bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-400 h-full transition-all duration-300 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <div className="flex justify-between text-[11px] text-slate-500 font-mono">
+                  <span>Engine: WebAssembly H.264 ultrafast</span>
+                  <span>100% In-Browser RAM</span>
+                </div>
+              </div>
+            )}
+
+            {/* Completion View */}
+            {compressedBlobUrl && outputFileSize && (
+              <div className="py-8 space-y-6 text-center">
+                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    Video Successfully Shrunk
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-400">
+                    Compressed from{" "}
+                    <span className="text-slate-400 line-through font-mono">
+                      {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </span>{" "}
+                    down to{" "}
+                    <span className="text-emerald-400 font-bold text-lg font-mono">
+                      {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
+                    </span>{" "}
+                    <span className="text-xs text-emerald-500 font-medium">
+                      (
+                      {((1 - outputFileSize / videoFile.size) * 100).toFixed(0)}
+                      % smaller)
+                    </span>
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <a
+                    href={compressedBlobUrl}
+                    download={`clipshrink_${videoFile.name.replace(/\.[^/.]+$/, "")}.mp4`}
+                    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition-all text-sm cursor-pointer">
+                    <Download className="w-4 h-4" /> Download Compressed MP4
+                  </a>
+                  <button
+                    onClick={resetAll}
+                    className="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-xl border border-slate-800 transition-all text-sm cursor-pointer">
+                    <RefreshCw className="w-4 h-4" /> Compress Another File
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Launch Compression Button */}
+            {!isCompressing && !compressedBlobUrl && (
+              <div className="pt-6">
+                <button
+                  onClick={startCompression}
+                  disabled={isLoadingFFmpeg}
+                  className="w-full bg-linear-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
+                  <Sparkles className="w-4 h-4" />
+                  Compress Video to &lt; {getTargetMB().toFixed(1)}MB Limit
+                  <ArrowRight className="w-4 h-4 opacity-75" />
                 </button>
               </div>
-            </div>
-          )}
-
-          {!isCompressing && !compressedBlobUrl && (
-            <div className="pt-6">
-              <button
-                onClick={startCompression}
-                disabled={isLoadingFFmpeg}
-                className="w-full bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 text-base cursor-pointer">
-                <Sparkles className="w-5 h-5" />
-                Compress Video (Target: {getTargetMB().toFixed(1)}MB)
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-950/50 border border-red-800/80 rounded-xl text-red-300 text-xs flex items-center gap-3">
+        <div className="mt-4 p-4 bg-red-950/40 border border-red-800/60 rounded-xl text-red-300 text-xs flex items-center gap-3">
           <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
           <span>{error}</span>
         </div>

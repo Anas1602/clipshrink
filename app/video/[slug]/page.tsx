@@ -254,7 +254,11 @@ export default async function SpokePage({
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 sm:py-16">
+    <main className="relative min-h-screen bg-slate-950 px-4 py-8 sm:py-16 overflow-hidden">
+      {/* Background Ambient Grid & Radial Glow */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2xl h-88 bg-indigo-500/10 blur-[130px] rounded-full pointer-events-none" />
+
       {/* App Schema */}
       <script
         type="application/ld+json"
@@ -266,30 +270,39 @@ export default async function SpokePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
-        {/* Breadcrumbs */}
+      <div className="relative max-w-4xl mx-auto mb-8 sm:mb-12">
+        {/* Modern Pill Breadcrumbs */}
         <nav
           aria-label="Breadcrumbs"
-          className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-4">
-          <Link href="/" className="hover:text-white transition-colors">
+          className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-6">
+          <Link
+            href="/"
+            className="hover:text-white transition-colors px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
             Home
           </Link>
-          <span>/</span>
-          <span className="text-slate-200">{spoke.h1}</span>
+          <span className="text-slate-600">/</span>
+          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+            {spoke.h1}
+          </span>
         </nav>
 
         <div className="text-center">
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
             {spoke.h1}
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed">
             {spoke.subtitle}
           </p>
         </div>
       </div>
 
-      <VideoCompressor initialPreset={spoke.preset} />
-      <SeoContent type={spoke.spokeType} />
+      <div className="relative z-10">
+        <VideoCompressor initialPreset={spoke.preset} />
+      </div>
+
+      <div className="relative z-10">
+        <SeoContent type={spoke.spokeType} />
+      </div>
     </main>
   );
 }
