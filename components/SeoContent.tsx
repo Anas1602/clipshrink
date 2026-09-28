@@ -10,6 +10,7 @@ import {
   X,
   Sparkles,
   Layers,
+  ChevronDown,
 } from "lucide-react";
 
 export type SpokeType =
@@ -47,9 +48,24 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
         "Unlike legacy cloud compressors that force you to upload 100MB+ files to remote server queues, ClipShrink compiles FFmpeg into client-side WebAssembly (WASM). Your local computer CPU processes the video directly in browser memory with zero upload latency.",
     },
     {
+      question: "Does Gmail compress videos automatically when sending?",
+      answer:
+        "No. Unlike social messaging apps, Gmail does not compress videos. If your video file exceeds 25MB, Gmail rejects the inline attachment and forces it into an external Google Drive link. Compressing your video below 25MB with ClipShrink keeps the file attached directly inside the email body.",
+    },
+    {
+      question: "How long can a 25MB video clip be?",
+      answer:
+        "At standard 720p HD resolution with optimized 30fps H.264 video and stereo AAC audio, a 25MB video file can comfortably hold between 3 to 7 minutes of crisp video with completely legible text and slides.",
+    },
+    {
+      question: "Can I compress a video to 10MB for Discord?",
+      answer:
+        "Yes. While Discord's free upload limit was historically 8MB, Discord now supports up to 10MB on desktop in select channels, while Nitro Basic allows 50MB. ClipShrink's custom selector and Discord presets guarantee your video finishes strictly below your selected ceiling on Attempt #1.",
+    },
+    {
       question: "How do I compress a video online for free with no watermark?",
       answer:
-        "Select your target size limit (8MB, 16MB, 25MB, or custom), drag and drop your MP4, MOV, or WebM video into the compressor, and download your optimized video instantly. ClipShrink is 100% free and never adds watermarks.",
+        "Select your target size limit (8MB, 16MB, 25MB, or custom), drag and drop your MP4, MOV, or WebM video into the compressor, and download your optimized video instantly. ClipShrink is 100% free, runs locally on your machine, and never adds watermarks.",
     },
     {
       question:
@@ -71,6 +87,11 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
         "Discord enforces a strict upload ceiling for free users to manage server bandwidth. ClipShrink's video compressor for Discord targets ~7.0MB to guarantee successful uploads across all desktop and mobile Discord apps.",
     },
     {
+      question: "Can I compress a video to 10MB for Discord?",
+      answer:
+        "Yes. If your Discord server allows the newer 10MB desktop upload limit, you can select the 10MB target in our custom size box. For universal compatibility across all mobile and desktop channels, the standard 8MB preset (targeting 7.0MB) is recommended.",
+    },
+    {
       question: "Can I use this tool as a GIF compressor for Discord?",
       answer:
         "Yes! Heavy animated GIFs often exceed Discord's 8MB limit. You can drop animated GIFs or short video loops into ClipShrink to reduce their file size safely below 8MB.",
@@ -88,15 +109,25 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
   ],
   "gmail-25mb": [
     {
+      question: "Does Gmail compress videos automatically when sending?",
+      answer:
+        "No. Gmail does not compress or optimize attachments. Any file over 25MB is automatically converted into an external Google Drive link. Compressing your video to ~22.0MB with ClipShrink ensures it attaches directly inline.",
+    },
+    {
+      question: "How long can a 25MB video clip be?",
+      answer:
+        "With ClipShrink's bitrate calculation, a 25MB file can hold up to 5–8 minutes of clear screen recording or 3–5 minutes of standard camera video at 720p HD resolution.",
+    },
+    {
       question: "Why does Gmail force videos into Google Drive links?",
       answer:
-        "Gmail has a hard 25MB attachment limit. Any file over 25MB is automatically converted into a Google Drive link. ClipShrink reduces your video to ~22.0MB so it attaches directly as an inline file.",
+        "Gmail enforces a hard 25MB attachment limit. When a video exceeds 25MB, Google forces recipient permissions and cloud drive links. ClipShrink reduces the video so recipients can download or view it immediately.",
     },
     {
       question:
         "Does this 25MB compression work for Outlook and Apple Mail as well?",
       answer:
-        "Yes. Outlook and Apple Mail enforce 20MB–25MB limits. Our 25MB preset ensures seamless direct emailing across all standard email clients.",
+        "Yes. Outlook and Apple Mail enforce 20MB–25MB limits. Our 25MB preset targets ~22.0MB to ensure seamless direct emailing across all standard email clients.",
     },
     {
       question:
@@ -110,6 +141,12 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
       question: "What is WhatsApp's video file size limit?",
       answer:
         "WhatsApp enforces a strict 16MB file size ceiling for videos sent as media attachments on both mobile and WhatsApp Web.",
+    },
+    {
+      question:
+        "How do I compress a video for WhatsApp without losing quality?",
+      answer:
+        "Select the WhatsApp 16MB preset on ClipShrink. Our engine downscales your video to 720p HD at 30 FPS while maintaining stereo AAC audio, keeping dialogue crisp and video clear without triggering WhatsApp's aggressive server re-compression.",
     },
     {
       question: "Why does WhatsApp Web fail to send certain MP4 files?",
@@ -131,10 +168,15 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "How does the 10MB bitrate calculation work?",
       answer:
-        "ClipShrink calculates: Total Bitrate = (9.0MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB.",
+        "ClipShrink calculates: Total Bitrate = (9.0MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB on pass #1.",
     },
   ],
   "email-20mb": [
+    {
+      question: "How to compress MP4 files for email?",
+      answer:
+        "Drop your MP4 file into ClipShrink and select our email preset. The compressor calculates the exact bitrate needed to bring the file under 20MB so it complies with Microsoft Outlook, Apple Mail, and Yahoo Mail attachment ceilings.",
+    },
     {
       question: "What is the standard video attachment limit for email?",
       answer:
@@ -214,9 +256,14 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     },
     {
       question:
-        "Will compressing prevent iPhone videos from appearing blurry in text messages?",
+        "Why do iPhone videos appear blurry when sent via text to Android?",
       answer:
-        "Yes! When cellular carriers auto-compress your video over SMS/MMS, they destroy visual quality. Pre-compressing with ClipShrink gives you fine-tuned H.264 bitrate control so your video stays sharp.",
+        "When sending video between iPhone and Android over SMS/MMS, cellular carriers automatically downsample and crush the video to under 3MB. Compressing your video to 16MB on ClipShrink and sending it via WhatsApp, Telegram, or email preserves crisp visual quality.",
+    },
+    {
+      question: "How to send large video from iPhone without iCloud link?",
+      answer:
+        "Compress the video file below 25MB using ClipShrink directly in mobile Safari. Once shrunk below 25MB, you can attach it directly to Mail, WhatsApp, or Slack without generating an iCloud Drive share link.",
     },
   ],
   twitter: [
@@ -533,9 +580,9 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
         </div>
       </section>
 
-      {/* Frequently Asked Questions */}
+      {/* Frequently Asked Questions - Expandable Modern Accordion */}
       <section aria-labelledby="faq-heading">
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
             <HelpCircle className="w-3.5 h-3.5" />
             Frequently Asked Questions
@@ -545,20 +592,25 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
             className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Everything You Need to Know
           </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+            Answers to common questions about platform limits, audio quality,
+            and browser-side encoding.
+          </p>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, index) => (
-            <div
+            <details
               key={index}
-              className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl backdrop-blur-xl">
-              <h3 className="font-semibold text-white mb-2 text-sm sm:text-base">
-                {faq.question}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              className="group bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden backdrop-blur-xl transition-all hover:border-slate-700/80 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none text-white font-medium text-sm sm:text-base hover:text-indigo-300 transition-colors">
+                <span className="pr-4">{faq.question}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200 shrink-0" />
+              </summary>
+              <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/40">
                 {faq.answer}
-              </p>
-            </div>
+              </div>
+            </details>
           ))}
         </div>
       </section>
