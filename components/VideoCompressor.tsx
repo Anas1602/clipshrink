@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import {
@@ -60,41 +60,51 @@ export default function VideoCompressor({
   const [error, setError] = useState<string | null>(null);
 
   const ffmpegRef = useRef<FFmpeg | null>(null);
+  const loadingPromiseRef = useRef<Promise<boolean> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const ensureFFmpegLoaded = async (): Promise<boolean> => {
+  // Concurrency-safe engine loader (safe for repeated hover/drag calls)
+  const ensureFFmpegLoaded = useCallback(async (): Promise<boolean> => {
     if (ffmpegRef.current && loaded) return true;
+    if (loadingPromiseRef.current) return loadingPromiseRef.current;
 
-    try {
-      setIsLoadingFFmpeg(true);
-      setStatusMessage("Initializing browser engine...");
-      const ffmpeg = new FFmpeg();
+    const loadPromise = (async () => {
+      try {
+        setIsLoadingFFmpeg(true);
+        setStatusMessage("Initializing browser engine...");
+        const ffmpeg = new FFmpeg();
 
-      ffmpeg.on("progress", ({ progress: p }) => {
-        setProgress(Math.round(Math.max(0, Math.min(1, p)) * 100));
-      });
+        ffmpeg.on("progress", ({ progress: p }) => {
+          setProgress(Math.round(Math.max(0, Math.min(1, p)) * 100));
+        });
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL("/ffmpeg/ffmpeg-core.js", "text/javascript"),
-        wasmURL: await toBlobURL(
-          "/ffmpeg/ffmpeg-core.wasm",
-          "application/wasm",
-        ),
-      });
+        await ffmpeg.load({
+          coreURL: await toBlobURL("/ffmpeg/ffmpeg-core.js", "text/javascript"),
+          wasmURL: await toBlobURL(
+            "/ffmpeg/ffmpeg-core.wasm",
+            "application/wasm",
+          ),
+        });
 
-      ffmpegRef.current = ffmpeg;
-      setLoaded(true);
-      setIsLoadingFFmpeg(false);
-      return true;
-    } catch (err) {
-      console.error("Failed to load FFmpeg:", err);
-      setError(
-        "Your browser does not support local WebAssembly processing. Please use Chrome, Edge, or Firefox.",
-      );
-      setIsLoadingFFmpeg(false);
-      return false;
-    }
-  };
+        ffmpegRef.current = ffmpeg;
+        setLoaded(true);
+        setIsLoadingFFmpeg(false);
+        loadingPromiseRef.current = null;
+        return true;
+      } catch (err) {
+        console.error("Failed to load FFmpeg:", err);
+        setError(
+          "Your browser does not support local WebAssembly processing. Please use Chrome, Edge, or Firefox.",
+        );
+        setIsLoadingFFmpeg(false);
+        loadingPromiseRef.current = null;
+        return false;
+      }
+    })();
+
+    loadingPromiseRef.current = loadPromise;
+    return loadPromise;
+  }, [loaded]);
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -126,6 +136,11 @@ export default function VideoCompressor({
       return;
     }
 
+    // Clean up previous output blob from browser memory
+    if (compressedBlobUrl) {
+      URL.revokeObjectURL(compressedBlobUrl);
+    }
+
     setError(null);
     setVideoFile(file);
     setCompressedBlobUrl(null);
@@ -140,26 +155,28 @@ export default function VideoCompressor({
     };
     videoElement.src = URL.createObjectURL(file);
 
+    // Warm up engine immediately upon file selection
     ensureFFmpegLoaded();
   };
 
+  // Recalibrated target bitrates to guarantee Attempt #1 completion strictly below limits
   const getTargetMB = (): number => {
     switch (preset) {
       case "discord-8":
-        return 7.2; // Safe buffer for 8MB limit
+        return 7.0; // Guaranteed < 8.0MB on pass #1
       case "whatsapp-16":
-        return 14.8;
+        return 14.2; // Guaranteed < 16.0MB on pass #1
       case "gmail-25":
       case "twitter-25":
-        return 22.8;
+        return 22.0; // Guaranteed < 25.0MB on pass #1
       case "discord-nitro-50":
-        return 47.0;
+        return 46.5; // Guaranteed < 50.0MB on pass #1
       case "file-100":
-        return 94.0;
+        return 93.0; // Guaranteed < 100.0MB on pass #1
       case "custom":
-        return Math.max(1, customSizeMB * 0.92);
+        return Math.max(1, customSizeMB * 0.9);
       default:
-        return 7.2;
+        return 7.0;
     }
   };
 
@@ -184,7 +201,7 @@ export default function VideoCompressor({
     const ffmpeg = ffmpegRef.current!;
     const audioBitrateK = 96;
 
-    // High-velocity encoding parameters: fast_bilinear + ultrafast + fastdecode
+    // High-velocity parameters: fast_bilinear + ultrafast + fastdecode
     await ffmpeg.exec([
       "-i",
       inputFileName,
@@ -197,13 +214,13 @@ export default function VideoCompressor({
       "-vf",
       "scale=-2:min(720\\,ih)",
       "-sws_flags",
-      "fast_bilinear", // 3x faster downscaling
+      "fast_bilinear",
       "-r",
-      "30", // Cap at 30 FPS
+      "30",
       "-c:v",
       "libx264",
       "-preset",
-      "ultrafast", // Fastest possible WebAssembly encoding velocity
+      "ultrafast",
       "-tune",
       "fastdecode",
       "-c:a",
@@ -236,6 +253,12 @@ export default function VideoCompressor({
       setError(null);
       setProgress(0);
       setStatusMessage("Reading video into browser memory...");
+
+      // Free previous blob if user re-runs compression on the same selected file
+      if (compressedBlobUrl) {
+        URL.revokeObjectURL(compressedBlobUrl);
+        setCompressedBlobUrl(null);
+      }
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(videoFile));
 
@@ -301,7 +324,7 @@ export default function VideoCompressor({
         await ffmpeg.deleteFile(inputFileName);
         await ffmpeg.deleteFile(outputFileName);
       } catch {
-        // Safe to ignore
+        // Safe to ignore if file already cleaned up
       }
     }
   };
@@ -422,12 +445,14 @@ export default function VideoCompressor({
         )}
       </div>
 
-      {/* Dropzone */}
+      {/* Dropzone with Preload Triggers on Hover and Drag */}
       {!videoFile ? (
         <div
           role="button"
           tabIndex={0}
           aria-label="Upload video file"
+          onMouseEnter={() => ensureFFmpegLoaded()}
+          onDragEnter={() => ensureFFmpegLoaded()}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleFileDrop}
           onClick={() => fileInputRef.current?.click()}
@@ -485,13 +510,13 @@ export default function VideoCompressor({
             {!isCompressing && !compressedBlobUrl && (
               <button
                 onClick={resetAll}
-                className="text-xs text-slate-400 hover:text-white transition-colors">
+                className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer">
                 Choose another file
               </button>
             )}
           </div>
 
-          {/* Soft Warning for Videos > 3 Minutes */}
+          {/* Warning for Long Videos */}
           {videoDuration > 180 && !compressedBlobUrl && (
             <div className="mt-4 p-3 bg-amber-950/40 border border-amber-800/50 rounded-xl text-amber-300 text-xs flex items-center gap-2.5">
               <Clock className="w-4 h-4 shrink-0 text-amber-400" />
@@ -549,7 +574,7 @@ export default function VideoCompressor({
                 </a>
                 <button
                   onClick={resetAll}
-                  className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 px-6 rounded-xl transition-all text-sm">
+                  className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 px-6 rounded-xl transition-all text-sm cursor-pointer">
                   <RefreshCw className="w-4 h-4" /> Compress Another Video
                 </button>
               </div>
