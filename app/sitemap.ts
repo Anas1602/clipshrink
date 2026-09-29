@@ -3,7 +3,8 @@ import { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://clipshrink.com";
 
-  const spokeUrls = [
+  // Tool #1: Video Compressor Spokes (14 routes)
+  const compressorSpokes = [
     "/video/compress-for-discord-8mb",
     "/video/compress-for-gmail-25mb",
     "/video/compress-for-whatsapp",
@@ -20,12 +21,37 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/video/compress-mov-for-discord",
   ];
 
-  const spokeEntries: MetadataRoute.Sitemap = spokeUrls.map((path) => ({
-    url: `${baseUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.9,
-  }));
+  // Tool #2: Instant Video Converter Spokes (10 routes)
+  const converterSpokes = [
+    "/convert/mkv-to-mp4",
+    "/convert/hevc-to-mp4",
+    "/convert/mov-to-mp4",
+    "/convert/webm-to-mp4",
+    "/convert/quicktime-to-mp3",
+    "/convert/opus-to-mp3",
+    "/convert/m4v-to-mp4",
+    "/convert/mpeg-to-mp4",
+    "/convert/ts-to-mp4",
+    "/convert/gif-to-mp4",
+  ];
+
+  const compressorEntries: MetadataRoute.Sitemap = compressorSpokes.map(
+    (path) => ({
+      url: `${baseUrl}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    }),
+  );
+
+  const converterEntries: MetadataRoute.Sitemap = converterSpokes.map(
+    (path) => ({
+      url: `${baseUrl}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    }),
+  );
 
   return [
     {
@@ -34,7 +60,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1.0,
     },
-    ...spokeEntries,
+    {
+      url: `${baseUrl}/convert`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
+    ...compressorEntries,
+    ...converterEntries,
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),

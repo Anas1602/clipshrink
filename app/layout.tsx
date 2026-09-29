@@ -39,24 +39,32 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <Link
               href="/"
-              className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-white">
-              <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-indigo-600/30">
+              className="flex items-center gap-2.5 font-extrabold text-xl tracking-tight text-white group">
+              <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform">
                 CS
               </span>
               ClipShrink
             </Link>
-            <nav className="flex items-center gap-6 text-xs sm:text-sm text-slate-300">
+            <nav className="flex items-center gap-5 sm:gap-6 text-xs sm:text-sm text-slate-300">
               <Link href="/" className="hover:text-white transition-colors">
                 Compressor
               </Link>
               <Link
+                href="/convert"
+                className="hover:text-white transition-colors flex items-center gap-1.5">
+                Converter
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
+                  NEW
+                </span>
+              </Link>
+              <Link
                 href="/about"
-                className="hover:text-white transition-colors">
+                className="hover:text-white transition-colors hidden sm:inline">
                 About
               </Link>
               <Link
                 href="/privacy-policy"
-                className="hover:text-white transition-colors">
+                className="hover:text-white transition-colors hidden sm:inline">
                 Privacy
               </Link>
             </nav>
@@ -68,10 +76,16 @@ export default function RootLayout({
         {/* Cookie Consent Banner */}
         <CookieConsent />
 
-        {/* Footer with Accessible Contrast */}
+        {/* Footer */}
         <footer className="border-t border-slate-900 bg-slate-950 py-12 text-center text-xs text-slate-400">
           <div className="max-w-6xl mx-auto px-4 space-y-4">
             <div className="flex flex-wrap justify-center gap-6 text-slate-300">
+              <Link href="/" className="hover:underline">
+                Video Compressor
+              </Link>
+              <Link href="/convert" className="hover:underline">
+                Video Converter
+              </Link>
               <Link href="/about" className="hover:underline">
                 About ClipShrink
               </Link>
