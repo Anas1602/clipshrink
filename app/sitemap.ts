@@ -35,6 +35,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/convert/gif-to-mp4",
   ];
 
+  // Tool #3: Remove Audio / Video Muter Spokes (6 routes)
+  const muterSpokes = [
+    "/remove-audio/iphone-video",
+    "/remove-audio/mp4",
+    "/remove-audio/mov",
+    "/remove-audio/instagram-reels",
+    "/remove-audio/send-without-sound",
+    "/remove-audio/mkv",
+  ];
+
   const compressorEntries: MetadataRoute.Sitemap = compressorSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
@@ -53,6 +63,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   );
 
+  const muterEntries: MetadataRoute.Sitemap = muterSpokes.map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.9,
+  }));
+
   return [
     {
       url: baseUrl,
@@ -66,8 +83,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1.0,
     },
+    {
+      url: `${baseUrl}/remove-audio`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
     ...compressorEntries,
     ...converterEntries,
+    ...muterEntries,
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),

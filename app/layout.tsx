@@ -45,14 +45,19 @@ export default function RootLayout({
               </span>
               ClipShrink
             </Link>
-            <nav className="flex items-center gap-5 sm:gap-6 text-xs sm:text-sm text-slate-300">
+            <nav className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-slate-300">
               <Link href="/" className="hover:text-white transition-colors">
                 Compressor
               </Link>
               <Link
                 href="/convert"
-                className="hover:text-white transition-colors flex items-center gap-1.5">
+                className="hover:text-white transition-colors">
                 Converter
+              </Link>
+              <Link
+                href="/remove-audio"
+                className="hover:text-white transition-colors flex items-center gap-1.5">
+                Mute Video
                 <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
                   NEW
                 </span>
@@ -61,11 +66,6 @@ export default function RootLayout({
                 href="/about"
                 className="hover:text-white transition-colors hidden sm:inline">
                 About
-              </Link>
-              <Link
-                href="/privacy-policy"
-                className="hover:text-white transition-colors hidden sm:inline">
-                Privacy
               </Link>
             </nav>
           </div>
@@ -85,6 +85,9 @@ export default function RootLayout({
               </Link>
               <Link href="/convert" className="hover:underline">
                 Video Converter
+              </Link>
+              <Link href="/remove-audio" className="hover:underline">
+                Remove Audio
               </Link>
               <Link href="/about" className="hover:underline">
                 About ClipShrink
