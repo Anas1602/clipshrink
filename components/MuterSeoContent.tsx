@@ -34,20 +34,20 @@ interface FaqItem {
 const FAQ_DATA: Record<string, FaqItem[]> = {
   "iphone-video": [
     {
+      question: "Why does muting in the iPhone Photos app fail when sharing?",
+      answer:
+        "When you tap the speaker icon in the Apple Photos app, iOS does not delete the audio track—it only sets a reversible metadata flag. When shared to Windows PCs, Android phones, or certain web forms, the video often unmutes and leaks private audio. ClipShrink physically strips the audio stream from the file container, guaranteeing the video is permanently silent everywhere.",
+    },
+    {
       question:
         "How do I remove sound from an iPhone video without downloading an app?",
       answer:
-        "Open ClipShrink in Safari on your iPhone, select your video from Photos, and click 'Remove Audio'. The audio track is stripped directly in your iPhone's Safari memory in 0.1 seconds without installing third-party apps or uploading personal clips to cloud servers.",
-    },
-    {
-      question: "Why do iPhone videos have unwanted background noise?",
-      answer:
-        "iPhones record with multiple sensitive stereo microphones that pick up wind, ambient room hum, and camera handling noise. Muting the video with ClipShrink gives you a clean silent video ready for TikTok, Instagram Reels, or messaging.",
+        "Open ClipShrink in Safari on your iPhone, select your video from Photos, and click 'Remove Audio'. The audio track is stripped directly in your iPhone's Safari memory in 0.1 seconds without installing third-party App Store apps or uploading personal clips to remote cloud servers.",
     },
     {
       question: "Will muting my iPhone video reduce 4K or 60fps quality?",
       answer:
-        "No. ClipShrink uses stream-copying (-c:v copy). The video stream is not re-encoded, meaning 4K resolution, 60fps frame rate, and HDR color profiles remain bit-for-bit identical.",
+        "No. ClipShrink uses stream-copying (-c:v copy). The video stream is not re-encoded, meaning 4K resolution, 60fps frame rate, and HDR color profiles remain bit-for-bit identical to your original recording.",
     },
   ],
   mp4: [
@@ -79,14 +79,20 @@ const FAQ_DATA: Record<string, FaqItem[]> = {
   ],
   default: [
     {
+      question:
+        "How is ClipShrink different from traditional online video muters?",
+      answer:
+        "Legacy online video tools force you to upload large 100MB+ files to remote cloud servers, wait in processing queues, and store your media remotely for hours. ClipShrink runs 100% locally in your browser memory via WebAssembly. Processing finishes in 0.1 seconds, your video never touches a server, and you get an inline player to verify silence before downloading.",
+    },
+    {
       question: "How is ClipShrink able to mute videos in 0.1 seconds?",
       answer:
         "Traditional cloud editors decode every video frame and re-encode the entire file. ClipShrink executes directly on your device CPU via WebAssembly. It simply discards the audio packets while copying the video stream directly (-an -c:v copy), completing in less than a second.",
     },
     {
-      question: "Do my video files ever get uploaded to a server?",
+      question: "Do my video files ever get stored on a server?",
       answer:
-        "Never. Video files are processed 100% locally in your web browser memory. ClipShrink operates with zero cloud storage, zero logs, and zero tracking.",
+        "Never. Video files are processed 100% locally in your web browser memory. Unlike legacy cloud converters that store user files on remote servers for hours, ClipShrink operates with zero server storage, zero logs, and zero tracking.",
     },
     {
       question: "Can I mute videos longer than 10 minutes?",
@@ -126,8 +132,13 @@ const COMMON_USE_CASES = [
 const COMPARISON_ROWS = [
   {
     feature: "Muting Speed",
-    cloud: "30–90 seconds (Upload + Cloud Queue)",
+    cloud: "30–90 seconds (Slow network upload + queue)",
     clipshrink: "0.1–0.5 seconds (Instant in-memory stream copy)",
+  },
+  {
+    feature: "Server File Storage",
+    cloud: "Stored on remote servers for several hours",
+    clipshrink: "0 Hours (Files never leave your local device RAM)",
   },
   {
     feature: "Video Pixel Quality",
@@ -135,9 +146,9 @@ const COMPARISON_ROWS = [
     clipshrink: "100% Bit-for-bit lossless (-c:v copy)",
   },
   {
-    feature: "File Privacy",
-    cloud: "Stored on remote AWS/GCP servers",
-    clipshrink: "100% In-Browser RAM (Files never leave device)",
+    feature: "Mobile Safari Experience",
+    cloud: "Outdated desktop layout with raw file inputs",
+    clipshrink: "Touch-friendly modern UI with inline verification player",
   },
   {
     feature: "Watermarks & Logos",
@@ -272,8 +283,8 @@ export default function MuterSeoContent({
             ClipShrink vs. Cloud Video Muting
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-            Why dropping audio in local browser RAM outperforms cloud video
-            editors on every metric.
+            Why dropping audio in local browser RAM outperforms legacy cloud
+            servers on every metric.
           </p>
         </div>
 
@@ -286,7 +297,7 @@ export default function MuterSeoContent({
                     Feature
                   </th>
                   <th className="py-4 px-5 text-slate-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
-                    Cloud Video Editors
+                    Traditional Cloud Editors (Server-Side)
                   </th>
                   <th className="py-4 px-5 text-indigo-400 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-950/20 border-l border-r border-indigo-500/20">
                     <span className="inline-flex items-center gap-1.5">
