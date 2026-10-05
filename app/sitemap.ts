@@ -45,6 +45,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/remove-audio/mkv",
   ];
 
+  // Tool #4: Audio Extractor Spokes (7 routes)
+  const extractorSpokes = [
+    "/extract-audio/mov-to-mp3",
+    "/extract-audio/mp4-to-mp3",
+    "/extract-audio/ogg-to-mp3",
+    "/extract-audio/webm-to-mp3",
+    "/extract-audio/mp4-to-wav",
+    "/extract-audio/video-to-wav",
+    "/extract-audio/quicktime-to-mp3",
+  ];
+
   const compressorEntries: MetadataRoute.Sitemap = compressorSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
@@ -70,6 +81,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
+  const extractorEntries: MetadataRoute.Sitemap = extractorSpokes.map(
+    (path) => ({
+      url: `${baseUrl}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    }),
+  );
+
   return [
     {
       url: baseUrl,
@@ -89,9 +109,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1.0,
     },
+    {
+      url: `${baseUrl}/extract-audio`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
     ...compressorEntries,
     ...converterEntries,
     ...muterEntries,
+    ...extractorEntries,
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
