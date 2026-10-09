@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
+import { loadProgressiveFFmpeg } from "@/lib/ffmpegLoader";
 import {
   Upload,
   CheckCircle2,
@@ -50,6 +51,9 @@ export default function VideoCompressor({
 }: VideoCompressorProps) {
   const [loaded, setLoaded] = useState(false);
   const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
+  const [isMultiThreaded, setIsMultiThreaded] = useState(false);
+  const [threadCount, setThreadCount] = useState(1);
+
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [preset, setPreset] = useState<TargetPreset>(initialPreset);
@@ -67,7 +71,7 @@ export default function VideoCompressor({
   const loadingPromiseRef = useRef<Promise<boolean> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Concurrency-safe engine loader
+  // Progressive Engine Loader (Loads once and only once)
   const ensureFFmpegLoaded = useCallback(async (): Promise<boolean> => {
     if (ffmpegRef.current && loaded) return true;
     if (loadingPromiseRef.current) return loadingPromiseRef.current;
@@ -76,21 +80,14 @@ export default function VideoCompressor({
       try {
         setIsLoadingFFmpeg(true);
         setStatusMessage("Initializing browser engine...");
-        const ffmpeg = new FFmpeg();
 
-        ffmpeg.on("progress", ({ progress: p }) => {
-          setProgress(Math.round(Math.max(0, Math.min(1, p)) * 100));
+        const result = await loadProgressiveFFmpeg((p) => {
+          setProgress(p);
         });
 
-        await ffmpeg.load({
-          coreURL: await toBlobURL("/ffmpeg/ffmpeg-core.js", "text/javascript"),
-          wasmURL: await toBlobURL(
-            "/ffmpeg/ffmpeg-core.wasm",
-            "application/wasm",
-          ),
-        });
-
-        ffmpegRef.current = ffmpeg;
+        ffmpegRef.current = result.ffmpeg;
+        setIsMultiThreaded(result.isMultiThreaded);
+        setThreadCount(result.threadCount);
         setLoaded(true);
         setIsLoadingFFmpeg(false);
         loadingPromiseRef.current = null;
@@ -196,42 +193,69 @@ export default function VideoCompressor({
 
   const runEncode = async (
     videoBitrateK: number,
+    audioBitrateK: number,
     inputFileName: string,
     outputFileName: string,
   ) => {
     const ffmpeg = ffmpegRef.current!;
-    const audioBitrateK = 96;
 
-    await ffmpeg.exec([
+    // Clean resolution scaling
+    let scaleFilter = "scale=-2:720";
+    let targetFps = "30";
+
+    if (videoBitrateK < 100) {
+      scaleFilter = "scale=-2:360";
+      targetFps = "20";
+    } else if (videoBitrateK < 250) {
+      scaleFilter = "scale=-2:480";
+      targetFps = "24";
+    }
+
+    // Buffer must NEVER drop below 500k so initial Keyframes don't choke the encoder
+    const safeBufSize = Math.max(500, Math.floor(videoBitrateK * 2));
+    const safeMaxRate = Math.max(
+      videoBitrateK + 50,
+      Math.floor(videoBitrateK * 1.3),
+    );
+
+    const ffmpegArgs: string[] = [
       "-i",
       inputFileName,
       "-b:v",
       `${videoBitrateK}k`,
       "-maxrate",
-      `${Math.floor(videoBitrateK * 1.12)}k`,
+      `${safeMaxRate}k`,
       "-bufsize",
-      `${Math.floor(videoBitrateK * 1.4)}k`,
+      `${safeBufSize}k`,
       "-vf",
-      "scale=-2:min(720\\,ih)",
+      scaleFilter,
       "-sws_flags",
       "fast_bilinear",
       "-r",
-      "30",
+      targetFps,
       "-c:v",
       "libx264",
       "-preset",
       "ultrafast",
       "-tune",
       "fastdecode",
-      "-c:a",
-      "aac",
-      "-b:a",
-      `${audioBitrateK}k`,
-      "-movflags",
-      "+faststart",
-      "-y",
-      outputFileName,
-    ]);
+    ];
+
+    // In WebAssembly, cap threads to 4 so threads + lookahead never exceeds the 8-worker limit
+    if (isMultiThreaded) {
+      const safeThreads = Math.min(threadCount, 4);
+      ffmpegArgs.push("-threads", `${safeThreads}`);
+    }
+
+    ffmpegArgs.push("-c:a", "aac", "-b:a", `${audioBitrateK}k`);
+
+    if (audioBitrateK <= 48) {
+      ffmpegArgs.push("-ac", "1");
+    }
+
+    ffmpegArgs.push("-movflags", "+faststart", "-y", outputFileName);
+
+    await ffmpeg.exec(ffmpegArgs);
 
     const data = (await ffmpeg.readFile(outputFileName)) as Uint8Array;
     return toSafeBlob(data, "video/mp4");
@@ -264,29 +288,41 @@ export default function VideoCompressor({
       const targetMB = getTargetMB();
       const realLimitBytes = getRealLimitBytes();
       const duration = videoDuration > 0 ? videoDuration : 10;
-      const audioBitrateK = 96;
 
-      let videoBitrateK = Math.max(
-        80,
-        Math.floor((targetMB * 8192) / duration) - audioBitrateK,
-      );
+      const totalBudgetK = Math.floor((targetMB * 8192) / duration);
+
+      let audioBitrateK = 96;
+      if (totalBudgetK < 110) {
+        audioBitrateK = 48;
+      } else if (totalBudgetK < 200) {
+        audioBitrateK = 64;
+      }
+
+      let videoBitrateK = Math.max(45, totalBudgetK - audioBitrateK);
 
       let blob: Blob | null = null;
 
       for (let attempt = 1; attempt <= MAX_ENCODE_ATTEMPTS; attempt++) {
         setStatusMessage(
           attempt === 1
-            ? "Compressing locally with WebAssembly..."
+            ? isMultiThreaded
+              ? `Compressing locally (${threadCount} CPU cores active)...`
+              : "Compressing locally with WebAssembly..."
             : `Refining bitrate (attempt ${attempt} of ${MAX_ENCODE_ATTEMPTS})...`,
         );
 
-        blob = await runEncode(videoBitrateK, inputFileName, outputFileName);
+        blob = await runEncode(
+          videoBitrateK,
+          audioBitrateK,
+          inputFileName,
+          outputFileName,
+        );
 
         if (blob.size <= realLimitBytes) break;
         if (attempt === MAX_ENCODE_ATTEMPTS) break;
 
         videoBitrateK = Math.max(
-          60,
+          40,
           Math.floor(videoBitrateK * RETRY_BITRATE_FACTOR),
         );
       }
@@ -336,7 +372,7 @@ export default function VideoCompressor({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Platform Preset Selector - Modern Segmented Tab Bar */}
+      {/* Platform Preset Selector - Segmented Tab Bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between px-1 mb-2.5">
           <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
@@ -465,7 +501,9 @@ export default function VideoCompressor({
           <div className="flex items-center gap-3 text-[11px]">
             <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Client Memory Ready
+              {isMultiThreaded
+                ? `⚡ ${threadCount}x CPU Cores Active`
+                : "Client Memory Ready"}
             </span>
           </div>
         </div>
@@ -595,7 +633,10 @@ export default function VideoCompressor({
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-500 font-mono">
-                  <span>Engine: WebAssembly H.264 ultrafast</span>
+                  <span>
+                    Engine: WebAssembly H.264 ultrafast{" "}
+                    {isMultiThreaded && `(${threadCount} Cores)`}
+                  </span>
                   <span>100% In-Browser RAM</span>
                 </div>
               </div>
