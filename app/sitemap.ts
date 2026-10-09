@@ -56,6 +56,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/extract-audio/quicktime-to-mp3",
   ];
 
+  // Tool #5: Lossless Video Trimmer Spokes (8 routes)
+  const trimmerSpokes = [
+    "/trim-video/trim-mp4",
+    "/trim-video/cut-mkv",
+    "/trim-video/trim-mov",
+    "/trim-video/cut-video-for-discord",
+    "/trim-video/trim-webm",
+    "/trim-video/cut-gif",
+    "/trim-video/lossless-video-cutter",
+    "/trim-video/trim-video-no-watermark",
+  ];
+
   const compressorEntries: MetadataRoute.Sitemap = compressorSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
@@ -90,6 +102,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   );
 
+  const trimmerEntries: MetadataRoute.Sitemap = trimmerSpokes.map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.9,
+  }));
+
   return [
     {
       url: baseUrl,
@@ -99,6 +118,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/convert`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/trim-video`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1.0,
@@ -117,6 +142,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...compressorEntries,
     ...converterEntries,
+    ...trimmerEntries,
     ...muterEntries,
     ...extractorEntries,
     {
