@@ -88,7 +88,7 @@ await ffmpeg.exec([
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/in-browser-video-compressor-wasm.git
+git clone https://github.com/Anas1602/clipshrink.git
 cd in-browser-video-compressor-wasm
 ```
 
