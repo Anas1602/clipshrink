@@ -28,9 +28,7 @@ export default function HomePage() {
         name: "ClipShrink",
         url: "https://clipshrink.com",
         logo: "https://clipshrink.com/icon.svg",
-        sameAs: [
-          "https://github.com/AnasLaribi95/in-browser-video-compressor-wasm",
-        ],
+        sameAs: ["https://github.com/Anas1602/clipshrink"],
       },
       {
         "@type": "WebApplication",
