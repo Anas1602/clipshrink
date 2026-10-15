@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "About ClipShrink — Free Local-First Video Compression",
   description:
     "Learn about ClipShrink, our mission for private in-browser video compression, and the technology behind our client-side tools.",
+  alternates: {
+    canonical: "https://clipshrink.com/about",
+  },
 };
 
 export default function AboutPage() {
