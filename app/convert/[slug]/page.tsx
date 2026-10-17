@@ -19,12 +19,12 @@ const CONVERTER_SPOKES: Record<string, ConverterSpokeData> = {
     slug: "mkv-to-mp4",
     sourceExt: "mkv",
     targetFormat: "mp4",
-    title: "MKV to MP4 Converter — Convert OBS MKV Online Free (0.5s)",
+    title: "MKV to MP4 Converter — Convert OBS MKV Online Free",
     h1: "Convert MKV to MP4 Online",
     subtitle:
-      "Lossless stream-copy remuxing for OBS Studio and gaming clips. Convert to MP4 in under 1 second with zero quality loss.",
+      "Remux OBS Studio and gaming clips to MP4. When the recording is already H.264 it is copied without re-encoding, so quality is untouched; other codecs are converted to H.264 automatically.",
     description:
-      "Convert MKV to MP4 online for free with instant client-side WebAssembly stream copy. Zero server uploads, zero quality loss.",
+      "Convert MKV to MP4 online for free with client-side WebAssembly. H.264 recordings are copied without re-encoding; other codecs are converted automatically. Nothing is uploaded.",
   },
   "hevc-to-mp4": {
     slug: "hevc-to-mp4",
@@ -110,9 +110,9 @@ const CONVERTER_SPOKES: Record<string, ConverterSpokeData> = {
     title: "TS to MP4 Converter — Convert Transport Stream Online Free",
     h1: "Convert TS to MP4 Online",
     subtitle:
-      "Lossless stream-copy converter for broadcast TS captures and live stream recordings.",
+      "Convert broadcast TS captures and live stream recordings to MP4. H.264 streams are copied without re-encoding; other codecs are converted.",
     description:
-      "Convert TS files to MP4 online for free. Instant WebAssembly container remuxing with zero quality loss.",
+      "Convert TS files to MP4 online for free. H.264 streams are remuxed without re-encoding; other codecs are converted automatically.",
   },
   "gif-to-mp4": {
     slug: "gif-to-mp4",
@@ -251,7 +251,7 @@ export default async function ConverterSpokePage({
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs text-slate-300 mb-4 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-medium text-slate-200">
-              0.5s Stream-Copy Remux
+              Fast In-Browser Remux
             </span>
             <span className="text-slate-600">•</span>
             <span className="text-slate-400">Zero Server Upload</span>

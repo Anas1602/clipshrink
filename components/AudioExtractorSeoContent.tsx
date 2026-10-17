@@ -135,7 +135,7 @@ const COMPARISON_ROWS = [
   {
     feature: "Extraction Speed",
     cloud: "45–90s (Slow upload + server queue)",
-    clipshrink: "0.8–1.5s (Instant in-memory stream demuxing)",
+    clipshrink: "0.8–2.0s (Local RAM processing)",
   },
   {
     feature: "Ad Experience",
@@ -405,7 +405,7 @@ export default function AudioExtractorSeoContent({
             Video to WAV Studio →
           </Link>
           <Link
-            href="/extract-audio/quicktime-to-mp3"
+            href="/convert/quicktime-to-mp3"
             className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
             QuickTime to MP3 →
           </Link>

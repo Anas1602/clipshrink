@@ -46,7 +46,7 @@ const FAQ_DATA: Record<string, FaqItem[]> = {
     {
       question: "Does converting MKV to MP4 reduce video or audio quality?",
       answer:
-        "No. Our primary pipeline uses lossless stream-copying. Every single pixel and audio sample remains bit-for-bit identical to your original recording.",
+        "Not when the MKV already contains H.264 video: ClipShrink copies the streams without re-encoding, so every pixel stays identical. If the recording uses another codec such as HEVC or AV1, it has to be re-encoded to H.264 to play everywhere, which changes the file size and can very slightly affect quality.",
     },
   ],
   "hevc-to-mp4": [
@@ -86,6 +86,11 @@ const FAQ_DATA: Record<string, FaqItem[]> = {
       answer:
         "No. You can extract audio from lectures, interviews, and long meetings up to 500MB directly in your browser without cloud upload limits.",
     },
+    {
+      question: "How to extract audio from Mac QuickTime screen recordings?",
+      answer:
+        "QuickTime Player saves screen recordings as .mov files with AAC or PCM audio. Drop the file here and ClipShrink pulls the audio track out as an MP3 in your browser, with no Mac app to install.",
+    },
   ],
   "opus-to-mp3": [
     {
@@ -118,7 +123,8 @@ const COMPARISON_ROWS = [
   {
     feature: "Conversion Speed",
     cloud: "30–90s (Upload + Queue + Encode)",
-    clipshrink: "0.5–2.0s (Local RAM Stream-Copy)",
+    clipshrink:
+      "Seconds for H.264 files (local stream-copy); longer when re-encoding is needed",
   },
   {
     feature: "File Privacy",
@@ -128,7 +134,7 @@ const COMPARISON_ROWS = [
   {
     feature: "Video Quality",
     cloud: "Often compressed or re-encoded",
-    clipshrink: "Lossless (Bit-for-bit identical stream copy)",
+    clipshrink: "Lossless when the video is already H.264 (stream copy)",
   },
   {
     feature: "Free File Limits",
@@ -204,7 +210,7 @@ export default function ConverterSeoContent({
               02
             </div>
             <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-md">
-              0.5s Execution
+              Fast Execution
             </span>
             <h3 className="font-bold text-white text-base mt-2 mb-2">
               Stream-Copy Remux

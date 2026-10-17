@@ -3,6 +3,17 @@ import { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://clipshrink.com";
 
+  // Fixed group update dates. Update a group only when its pages actually change.
+  const MODIFIED = {
+    hubs: new Date("2026-10-17"),
+    compress: new Date("2026-10-17"),
+    convert: new Date("2026-10-17"),
+    extract: new Date("2026-10-17"),
+    trim: new Date("2026-10-13"),
+    mute: new Date("2026-10-13"),
+    legal: new Date("2026-10-17"),
+  };
+
   // Tool #1: Video Compressor Spokes (14 routes)
   const compressorSpokes = [
     "/video/compress-for-discord-8mb",
@@ -45,7 +56,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/remove-audio/mkv",
   ];
 
-  // Tool #4: Audio Extractor Spokes (7 routes)
+  // Tool #4: Audio Extractor Spokes (6 routes)
+  // Note: /extract-audio/quicktime-to-mp3 was removed (301 redirects to /convert/quicktime-to-mp3)
   const extractorSpokes = [
     "/extract-audio/mov-to-mp3",
     "/extract-audio/mp4-to-mp3",
@@ -53,7 +65,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/extract-audio/webm-to-mp3",
     "/extract-audio/mp4-to-wav",
     "/extract-audio/video-to-wav",
-    "/extract-audio/quicktime-to-mp3",
   ];
 
   // Tool #5: Lossless Video Trimmer Spokes (8 routes)
@@ -71,74 +82,54 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const compressorEntries: MetadataRoute.Sitemap = compressorSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      lastModified: MODIFIED.compress,
     }),
   );
 
   const converterEntries: MetadataRoute.Sitemap = converterSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      lastModified: MODIFIED.convert,
     }),
   );
 
   const muterEntries: MetadataRoute.Sitemap = muterSpokes.map((path) => ({
     url: `${baseUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.9,
+    lastModified: MODIFIED.mute,
   }));
 
   const extractorEntries: MetadataRoute.Sitemap = extractorSpokes.map(
     (path) => ({
       url: `${baseUrl}${path}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      lastModified: MODIFIED.extract,
     }),
   );
 
   const trimmerEntries: MetadataRoute.Sitemap = trimmerSpokes.map((path) => ({
     url: `${baseUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.9,
+    lastModified: MODIFIED.trim,
   }));
 
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
+      lastModified: MODIFIED.hubs,
     },
     {
       url: `${baseUrl}/convert`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
+      lastModified: MODIFIED.hubs,
     },
     {
       url: `${baseUrl}/trim-video`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
+      lastModified: MODIFIED.hubs,
     },
     {
       url: `${baseUrl}/remove-audio`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
+      lastModified: MODIFIED.hubs,
     },
     {
       url: `${baseUrl}/extract-audio`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
+      lastModified: MODIFIED.hubs,
     },
     ...compressorEntries,
     ...converterEntries,
@@ -147,27 +138,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...extractorEntries,
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
+      lastModified: MODIFIED.legal,
     },
     {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
+      lastModified: MODIFIED.legal,
     },
     {
       url: `${baseUrl}/terms-of-service`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
+      lastModified: MODIFIED.legal,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.4,
+      lastModified: MODIFIED.legal,
     },
   ];
 }

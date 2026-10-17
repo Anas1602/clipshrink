@@ -5,7 +5,7 @@ import SeoContent from "@/components/SeoContent";
 export const metadata: Metadata = {
   title: "Video File Compressor — Compress Video Online Free (2026)",
   description:
-    "Fast in-browser video file compressor. Shrink MP4, MOV, and WebM video size under 8MB, 16MB, or 25MB with zero server uploads, no watermarks, and no signup.",
+    "Fast in-browser video file compressor. Shrink MP4, MOV, and WebM videos to fit Discord (20MB), WhatsApp (16MB), or Gmail (25MB) with zero server uploads, no watermarks, and no signup.",
   alternates: {
     canonical: "https://clipshrink.com",
   },
@@ -35,16 +35,9 @@ export default function HomePage() {
         name: "ClipShrink Video File Compressor",
         url: "https://clipshrink.com",
         description:
-          "Free client-side video file compressor to reduce video files below 8MB, 16MB, and 25MB for Discord, Gmail, and WhatsApp with zero server uploads.",
+          "Free client-side video file compressor to fit Discord (20MB), WhatsApp (16MB), and Gmail (25MB) limits with zero server uploads.",
         applicationCategory: "MultimediaApplication",
         operatingSystem: "Any",
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: "4.9",
-          ratingCount: "328",
-          bestRating: "5",
-          worstRating: "1",
-        },
         offers: {
           "@type": "Offer",
           price: "0",
@@ -93,7 +86,7 @@ export default function HomePage() {
 
       {/* Interactive Tool Widget */}
       <div className="relative z-10">
-        <VideoCompressor initialPreset="discord-8" />
+        <VideoCompressor initialPreset="discord-20" />
       </div>
 
       {/* Server-Rendered Content Below the Fold */}

@@ -33,7 +33,7 @@ const EXTRACTOR_SPOKES: Record<string, ExtractorSpokeData> = {
     title: "MP4 to MP3 Converter — Extract Audio from MP4 Online Free",
     h1: "Convert MP4 to MP3 Online",
     subtitle:
-      "Rip high-quality 320kbps or 192kbps MP3 audio tracks from MP4 video in seconds with zero quality loss.",
+      "Rip high-quality 320kbps or 192kbps MP3 audio tracks from MP4 video in seconds.",
     description:
       "Convert MP4 to MP3 online for free. In-browser client-side WebAssembly audio extraction with instant live preview.",
   },
@@ -80,17 +80,6 @@ const EXTRACTOR_SPOKES: Record<string, ExtractorSpokeData> = {
       "Rip master-quality uncompressed WAV audio from any video file in under 1 second in browser RAM.",
     description:
       "Convert video to WAV online for free. Instant in-browser stream demuxing with zero cloud uploads.",
-  },
-  "quicktime-to-mp3": {
-    slug: "quicktime-to-mp3",
-    defaultFormat: "mp3-320",
-    sourceContext: "QuickTime",
-    title: "QuickTime to MP3 Converter — Extract Audio from Mac Videos Free",
-    h1: "Extract MP3 from QuickTime MOV",
-    subtitle:
-      "Extract voice memos, lectures, and podcasts from Mac QuickTime screen recordings in seconds.",
-    description:
-      "Extract MP3 audio from QuickTime MOV videos online for free. Fast WebAssembly processing with zero data uploads.",
   },
 };
 

@@ -55,7 +55,7 @@ const SPOKE_CARDS = [
     title: "QuickTime to MP3",
     badge: "MAC SCREEN CLIPS",
     desc: "Extract podcasts and voice notes from Apple QuickTime files in browser RAM.",
-    href: "/extract-audio/quicktime-to-mp3",
+    href: "/convert/quicktime-to-mp3",
   },
 ];
 

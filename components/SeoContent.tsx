@@ -42,8 +42,7 @@ interface FaqItem {
 const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
   home: [
     {
-      question:
-        "What makes ClipShrink the fastest video file compressor online?",
+      question: "How does ClipShrink compress video without uploading it?",
       answer:
         "Unlike legacy cloud compressors that force you to upload 100MB+ files to remote server queues, ClipShrink compiles FFmpeg into client-side WebAssembly (WASM). Your local computer CPU processes the video directly in browser memory with zero upload latency.",
     },
@@ -58,48 +57,47 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
         "At standard 720p HD resolution with optimized 30fps H.264 video and stereo AAC audio, a 25MB video file can comfortably hold between 3 to 7 minutes of crisp video with completely legible text and slides.",
     },
     {
-      question: "Can I compress a video to 10MB for Discord?",
+      question: "Can I compress a video for Discord?",
       answer:
-        "Yes. While Discord's free upload limit was historically 8MB, Discord now supports up to 10MB on desktop in select channels, while Nitro Basic allows 50MB. ClipShrink's custom selector and Discord presets guarantee your video finishes strictly below your selected ceiling on Attempt #1.",
+        "Yes. Discord raised its free upload limit to 20MB in August 2026 (it was 10MB from late 2024 and 8MB before 2023). Nitro Basic allows 50MB and full Nitro 500MB. Pick the Discord preset, which targets about 18MB, or choose Custom for any other size such as 8MB or 10MB.",
     },
     {
       question: "How do I compress a video online for free with no watermark?",
       answer:
-        "Select your target size limit (8MB, 16MB, 25MB, or custom), drag and drop your MP4, MOV, or WebM video into the compressor, and download your optimized video instantly. ClipShrink is 100% free, runs locally on your machine, and never adds watermarks.",
+        "Select your target size limit (Discord 20MB, WhatsApp 16MB, Gmail 25MB, or custom), drag and drop your MP4, MOV, or WebM video into the compressor, and download your optimized video instantly. ClipShrink is 100% free, runs locally on your machine, and never adds watermarks.",
     },
     {
       question:
         "Will compressing my video reduce audio quality or voice tracks?",
       answer:
-        "No. ClipShrink preserves stereo AAC audio at 96 kbps, keeping voice chat, sound effects, and music clear while dedicating 90% of the byte budget to visual sharpness.",
+        "ClipShrink keeps stereo AAC audio at 96 kbps for normal size targets and only lowers it when the target is very tight. Any compression trades some quality for size, so the tool keeps voices and effects as clear as the budget allows and gives the rest to the video.",
     },
     {
-      question:
-        "How does the video file compressor guarantee the exact target size?",
+      question: "How does ClipShrink hit the target size?",
       answer:
-        "Our engine calculates the exact target bitrate based on your video's duration: Bitrate = (Target MB × 8192) / Duration. It applies a safety buffer to ensure high-motion scenes never exceed your selected ceiling.",
+        "The engine reads your video's length and calculates a bitrate: Bitrate = (Target MB × 8192) / Duration, aiming slightly under your limit. If the first pass lands over it, the tool retries once at a lower bitrate, and it tells you clearly if the result still doesn't fit.",
     },
   ],
   "discord-8mb": [
     {
-      question: "Why does Discord reject videos larger than 8MB or 10MB?",
+      question: "What is Discord's upload limit for free users?",
       answer:
-        "Discord enforces a strict upload ceiling for free users to manage server bandwidth. ClipShrink's video compressor for Discord targets ~7.0MB to guarantee successful uploads across all desktop and mobile Discord apps.",
+        "Discord raised the free per-file limit to 20MB in August 2026. Before that it was 10MB (from late 2024) and 8MB (before 2023), so older guides quoting 8MB or 10MB are out of date. Nitro Basic allows 50MB and Nitro 500MB. The Discord preset here targets about 18MB to leave headroom.",
     },
     {
-      question: "Can I compress a video to 10MB for Discord?",
+      question: "Can I still target 8MB or 10MB for Discord?",
       answer:
-        "Yes. If your Discord server allows the newer 10MB desktop upload limit, you can select the 10MB target in our custom size box. For universal compatibility across all mobile and desktop channels, the standard 8MB preset (targeting 7.0MB) is recommended.",
+        "Yes. Pick the Custom tab and enter 8 or 10. That is useful if you want a smaller file that uploads faster, even though Discord's free limit is now 20MB.",
     },
     {
       question: "Can I use this tool as a GIF compressor for Discord?",
       answer:
-        "Yes! Heavy animated GIFs often exceed Discord's 8MB limit. You can drop animated GIFs or short video loops into ClipShrink to reduce their file size safely below 8MB.",
+        "Not directly: the compressor accepts video files (MP4, MOV, WebM, MKV), not .gif files. Convert the GIF to MP4 with the GIF to MP4 converter first, then compress it here. MP4 is also much smaller than GIF and plays inline on Discord.",
     },
     {
       question: "What is the best video compressor for Discord gaming clips?",
       answer:
-        "For fast-paced gameplay clips (Valorant, Fortnite, Call of Duty), 30 to 60 seconds at 720p 30fps compress with great visual clarity. For talking-head or screen recordings, clips up to 2–3 minutes fit cleanly under 8MB.",
+        "For fast-paced gameplay clips (Valorant, Fortnite, Call of Duty), 30 to 60 seconds at 720p 30fps compress with great visual clarity. For talking-head or screen recordings, clips of a few minutes fit comfortably under 20MB.",
     },
     {
       question: "Can I compress iPhone .MOV gaming clips to send on Discord?",
@@ -127,7 +125,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
       question:
         "Does this 25MB compression work for Outlook and Apple Mail as well?",
       answer:
-        "Yes. Outlook and Apple Mail enforce 20MB–25MB limits. Our 25MB preset targets ~22.0MB to ensure seamless direct emailing across all standard email clients.",
+        "Usually. Outlook and Apple Mail typically enforce 20MB–25MB limits. The 25MB preset targets about 22MB, which suits Gmail; for Outlook, use the Outlook compressor, which targets about 18MB.",
     },
     {
       question:
@@ -144,9 +142,9 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     },
     {
       question:
-        "How do I compress a video for WhatsApp without losing quality?",
+        "How do I compress a video for WhatsApp with the least quality loss?",
       answer:
-        "Select the WhatsApp 16MB preset on ClipShrink. Our engine downscales your video to 720p HD at 30 FPS while maintaining stereo AAC audio, keeping dialogue crisp and video clear without triggering WhatsApp's aggressive server re-compression.",
+        "Select the WhatsApp 16MB preset on ClipShrink. Our engine downscales your video to 720p HD at 30 FPS while maintaining stereo AAC audio, keeping dialogue clear. WhatsApp may still re-encode videos sent as media, but starting from a clean H.264 file under the limit gives it less to throw away.",
     },
     {
       question: "Why does WhatsApp Web fail to send certain MP4 files?",
@@ -156,31 +154,31 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "Can I compress videos for WhatsApp status updates?",
       answer:
-        "Yes. Compressing your video under 16MB prevents WhatsApp from aggressively re-compressing and blurring your status videos on their servers.",
+        "Yes. Compressing your video under 16MB first lets it upload quickly, and a clean H.264 file gives WhatsApp's own re-encoding less to degrade. WhatsApp may still re-compress status videos.",
     },
   ],
   "10mb": [
     {
       question: "Why compress a video to exactly 10MB?",
       answer:
-        "10MB is the standard file upload threshold for Discord, Slack free workspaces, various government portal submissions, and job application forms.",
+        "10MB is a common upload threshold for job application forms, support-ticket systems, and many government and university portals. (For reference, Discord's free limit is now 20MB and Slack allows up to 1GB per file.)",
     },
     {
       question: "How does the 10MB bitrate calculation work?",
       answer:
-        "ClipShrink calculates: Total Bitrate = (9.0MB × 8192) / Duration. This guarantees the file finishes safely under 10.0MB on pass #1.",
+        "ClipShrink calculates: Total Bitrate = (9.0MB × 8192) / Duration, aiming for about 9MB so there is headroom under 10MB. If the first pass lands over, it retries once at a lower bitrate and tells you if it still can't fit.",
     },
   ],
   "email-20mb": [
     {
       question: "How to compress MP4 files for email?",
       answer:
-        "Drop your MP4 file into ClipShrink and select our email preset. The compressor calculates the exact bitrate needed to bring the file under 20MB so it complies with Microsoft Outlook, Apple Mail, and Yahoo Mail attachment ceilings.",
+        "Drop your MP4 file into ClipShrink and select our email preset. The compressor calculates the exact bitrate needed to bring the file under 20MB so it fits typical Outlook, Apple Mail, and Yahoo Mail attachment ceilings.",
     },
     {
       question: "What is the standard video attachment limit for email?",
       answer:
-        "Most mainstream email providers (Outlook, Apple Mail, Yahoo) cap direct attachments between 20MB and 25MB. ClipShrink targets 19MB to ensure delivery without attachment bounces.",
+        "Most mainstream email providers (Outlook, Apple Mail, Yahoo) cap direct attachments between 20MB and 25MB. Email encoding makes a file about a third larger in transit, so ClipShrink's email setting targets about 18MB to leave headroom.",
     },
     {
       question: "How do I avoid Google Drive or OneDrive cloud upload links?",
@@ -192,7 +190,7 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "What is Outlook's maximum file attachment size?",
       answer:
-        "Microsoft Outlook and Exchange servers enforce a default attachment limit of 20MB for external recipients. ClipShrink safely compresses videos to ~19MB to guarantee delivery.",
+        "The Outlook desktop app defaults to a 20MB attachment limit for internet email accounts, while Outlook on the web and Microsoft 365 are typically closer to 25MB and an admin can change it. Encoding adds about a third to the size in transit, so ClipShrink's Outlook setting targets about 18MB.",
     },
     {
       question:
@@ -203,30 +201,30 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
   ],
   "slack-10mb": [
     {
-      question: "Does Slack compress videos and images uploaded to channels?",
+      question: "What is Slack's file size limit for videos?",
       answer:
-        "Yes, Slack heavily compresses media uploads and caps free workspace storage. Pre-compressing video recordings to under 10MB with ClipShrink preserves quality and ensures instant playback directly inside Slack channels.",
+        "Slack accepts files up to 1GB on every plan, so 10MB is not a hard limit. A small file uploads faster, starts playing sooner in the channel, and uses less workspace storage, which is why ClipShrink offers a ~10MB target for bug demos and recordings.",
     },
   ],
   "nitro-50mb": [
     {
       question: "What is the upload limit for Discord Nitro Basic?",
       answer:
-        "Discord Nitro Basic offers a 50MB upload limit. This preset allows you to retain higher bitrates (1080p 60fps gaming clips) while guaranteeing the file stays strictly under 50MB.",
+        "Discord Nitro Basic offers a 50MB upload limit. This preset allows you to retain higher bitrates (1080p 60fps gaming clips) targeting about 46.5MB so it fits under the 50MB limit.",
     },
   ],
   "25mb-custom": [
     {
       question: "Why compress a video to exactly 25MB?",
       answer:
-        "25MB is the universal ceiling across major web portals, including web email services, job board application forms, and customer support ticket systems.",
+        "25MB is a common ceiling for web email services, job board application forms, and customer support ticket systems.",
     },
   ],
   "mov-to-discord": [
     {
       question: "Why won't Discord play my iPhone MOV video inline?",
       answer:
-        "Apple QuickTime (.MOV) files recorded with HEVC/H.265 often download as an attachment on Discord rather than playing directly in chat. ClipShrink re-encodes MOV videos into web-friendly H.264 MP4 with faststart headers under 8MB.",
+        "Apple QuickTime (.MOV) files recorded with HEVC/H.265 often download as an attachment on Discord rather than playing directly in chat. ClipShrink re-encodes MOV videos into web-friendly H.264 MP4 with faststart headers, under Discord's 20MB free limit.",
     },
   ],
   "iphone-compress": [
@@ -270,19 +268,19 @@ const FAQ_DATA: Record<SpokeType, FaqItem[]> = {
     {
       question: "What are the video upload requirements for Twitter / X?",
       answer:
-        "Twitter / X supports MP4 and MOV formats up to 512MB for regular users, but large uploads often fail or stall during processing. Compressing to 25MB ensures instantaneous upload and fast transcoding on Twitter servers.",
+        "Twitter / X supports MP4 and MOV formats up to 512MB for regular users, but large uploads can fail or stall during processing. A smaller file (ClipShrink's X preset targets about 22MB) uploads faster and is less likely to stall.",
     },
     {
       question: "Why does Twitter compress my uploaded video into low quality?",
       answer:
-        "Twitter's server-side encoder aggressively recompresses high-bitrate files. Uploading a video pre-optimized at 720p 30fps H.264 with AAC audio bypasses severe server re-encoding artifacts.",
+        "Twitter's server-side encoder aggressively recompresses high-bitrate files. Uploading a video already optimized at 720p 30fps H.264 with AAC audio gives the encoder less to throw away, which can reduce visible artifacts.",
     },
   ],
   "100mb": [
     {
       question: "Why compress a video to under 100MB?",
       answer:
-        "100MB is the maximum upload limit for many corporate intranets, Discord Nitro standard tiers, learning management portals (Canvas, Blackboard), and job application portals.",
+        "100MB is a common upload limit for corporate intranets, learning management portals (Canvas, Blackboard), and job application portals.",
     },
     {
       question: "Can long-form videos fit under 100MB?",
@@ -314,7 +312,7 @@ const COMPARISON_ROWS = [
   {
     feature: "Target Size Precision",
     cloud: "Generic 'low/medium/high' presets",
-    clipshrink: "Calculated VBR bitrate guarantee (< 8MB, < 25MB)",
+    clipshrink: "Bitrate calculated from your target size (e.g. 20MB, 25MB)",
     better: true,
   },
   {
@@ -381,8 +379,9 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
               Select Size Limit
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Pick Discord 8MB, WhatsApp 16MB, Gmail 25MB, or custom size. Our
-              engine computes exact video bitrates automatically.
+              Pick Discord 20MB, WhatsApp 16MB, Gmail 25MB, or a custom size.
+              Our engine works out the video bitrate from your clip&apos;s
+              length.
             </p>
           </div>
 
@@ -513,7 +512,8 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Your personal videos and work recordings never touch external
-                servers. Zero data collection, zero leaks, zero logs.
+                servers. Only anonymous site analytics are collected, and
+                cookies are used only if you accept.
               </p>
             </div>
           </div>
@@ -548,12 +548,13 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
                   Dynamic Bitrate Capping
                 </h3>
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/60 border border-purple-800/40 px-1.5 py-0.2 rounded">
-                  GUARANTEED
+                  TARGETED
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                We compute custom VBR bitrates with safety margins so your video
-                finishes strictly below your selected ceiling on Attempt #1.
+                We compute a bitrate from your clip&apos;s length with a safety
+                margin. If the first pass runs over, we retry once at a lower
+                bitrate and tell you if it still can&apos;t fit.
               </p>
             </div>
           </div>
@@ -629,7 +630,7 @@ export default function SeoContent({ type = "home" }: SeoContentProps) {
           <Link
             href="/video/compress-for-discord-8mb"
             className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
-            Discord 8MB Compressor →
+            Discord 20MB Compressor →
           </Link>
           <Link
             href="/video/compress-for-gmail-25mb"

@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { loadProgressiveFFmpeg } from "@/lib/ffmpegLoader";
+import { probeMedia, isAlreadyShareable } from "@/lib/probeMedia";
 import {
   Upload,
   CheckCircle2,
@@ -22,7 +23,7 @@ import {
 import confetti from "canvas-confetti";
 
 export type TargetPreset =
-  | "discord-8"
+  | "discord-20"
   | "whatsapp-16"
   | "gmail-25"
   | "twitter-25"
@@ -32,10 +33,12 @@ export type TargetPreset =
 
 interface VideoCompressorProps {
   initialPreset?: TargetPreset;
+  /** Size (MB) the Custom tab starts at. Spokes like "to 10MB" or "Outlook 20MB" set this. */
+  initialCustomMB?: number;
 }
 
 const REAL_LIMIT_BYTES: Record<Exclude<TargetPreset, "custom">, number> = {
-  "discord-8": 8 * 1024 * 1024,
+  "discord-20": 20 * 1024 * 1024,
   "whatsapp-16": 16 * 1024 * 1024,
   "gmail-25": 25 * 1024 * 1024,
   "twitter-25": 25 * 1024 * 1024,
@@ -47,7 +50,8 @@ const MAX_ENCODE_ATTEMPTS = 2;
 const RETRY_BITRATE_FACTOR = 0.85;
 
 export default function VideoCompressor({
-  initialPreset = "discord-8",
+  initialPreset = "discord-20",
+  initialCustomMB = 8,
 }: VideoCompressorProps) {
   const [loaded, setLoaded] = useState(false);
   const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
@@ -57,7 +61,7 @@ export default function VideoCompressor({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [preset, setPreset] = useState<TargetPreset>(initialPreset);
-  const [customSizeMB, setCustomSizeMB] = useState<number>(8);
+  const [customSizeMB, setCustomSizeMB] = useState<number>(initialCustomMB);
   const [isCompressing, setIsCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
@@ -65,6 +69,7 @@ export default function VideoCompressor({
     null,
   );
   const [outputFileSize, setOutputFileSize] = useState<number | null>(null);
+  const [alreadyUnderLimit, setAlreadyUnderLimit] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -145,23 +150,32 @@ export default function VideoCompressor({
     setVideoFile(file);
     setCompressedBlobUrl(null);
     setOutputFileSize(null);
+    setAlreadyUnderLimit(false);
     setProgress(0);
+    setVideoDuration(0);
 
+    // Best-effort early read for UI preview
     const videoElement = document.createElement("video");
     videoElement.preload = "metadata";
+    const probeUrl = URL.createObjectURL(file);
     videoElement.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(videoElement.src);
-      setVideoDuration(videoElement.duration || 10);
+      URL.revokeObjectURL(probeUrl);
+      const d = videoElement.duration;
+      setVideoDuration(Number.isFinite(d) && d > 0 ? d : 0);
     };
-    videoElement.src = URL.createObjectURL(file);
+    videoElement.onerror = () => {
+      URL.revokeObjectURL(probeUrl);
+      setVideoDuration(0);
+    };
+    videoElement.src = probeUrl;
 
     ensureFFmpegLoaded();
   };
 
   const getTargetMB = (): number => {
     switch (preset) {
-      case "discord-8":
-        return 7.0;
+      case "discord-20":
+        return 18.0;
       case "whatsapp-16":
         return 14.2;
       case "gmail-25":
@@ -199,15 +213,16 @@ export default function VideoCompressor({
   ) => {
     const ffmpeg = ffmpegRef.current!;
 
-    // Clean resolution scaling
-    let scaleFilter = "scale=-2:720";
+    // Clean resolution scaling: never upscale, keep height even for yuv420p
+    const scaleTo = (h: number) => `scale=-2:trunc(min(${h}\\,ih)/2)*2`;
+    let scaleFilter = scaleTo(720);
     let targetFps = "30";
 
     if (videoBitrateK < 100) {
-      scaleFilter = "scale=-2:360";
+      scaleFilter = scaleTo(360);
       targetFps = "20";
     } else if (videoBitrateK < 250) {
-      scaleFilter = "scale=-2:480";
+      scaleFilter = scaleTo(480);
       targetFps = "24";
     }
 
@@ -241,7 +256,7 @@ export default function VideoCompressor({
       "fastdecode",
     ];
 
-    // In WebAssembly, cap threads to 4 so threads + lookahead never exceeds the 8-worker limit
+    // In WebAssembly, cap threads to 4 so threads + lookahead never exceeds worker limit
     if (isMultiThreaded) {
       const safeThreads = Math.min(threadCount, 4);
       ffmpegArgs.push("-threads", `${safeThreads}`);
@@ -285,9 +300,41 @@ export default function VideoCompressor({
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(videoFile));
 
+      // Read real length and codecs straight from file header
+      setStatusMessage("Reading video details...");
+      const probe = await probeMedia(ffmpeg, inputFileName);
+      const duration =
+        probe.durationSec > 0 ? probe.durationSec : videoDuration;
+      if (!(duration > 0)) {
+        setError(
+          "We couldn't read this video's length, so we can't hit an exact size. Try re-exporting it as MP4 and dropping it in again.",
+        );
+        setIsCompressing(false);
+        return;
+      }
+      setVideoDuration(duration);
+
       const targetMB = getTargetMB();
       const realLimitBytes = getRealLimitBytes();
-      const duration = videoDuration > 0 ? videoDuration : 10;
+
+      // Fast-pass: already under limit and universally playable MP4
+      if (
+        isAlreadyShareable(
+          videoFile.name,
+          videoFile.size,
+          realLimitBytes,
+          probe,
+        )
+      ) {
+        setCompressedBlobUrl(URL.createObjectURL(videoFile));
+        setOutputFileSize(videoFile.size);
+        setAlreadyUnderLimit(true);
+        setProgress(100);
+        setStatusMessage("Already under the limit");
+        setIsCompressing(false);
+        return;
+      }
+      setAlreadyUnderLimit(false);
 
       const totalBudgetK = Math.floor((targetMB * 8192) / duration);
 
@@ -366,9 +413,15 @@ export default function VideoCompressor({
     setVideoFile(null);
     setCompressedBlobUrl(null);
     setOutputFileSize(null);
+    setAlreadyUnderLimit(false);
+    setVideoDuration(0);
     setProgress(0);
     setError(null);
   };
+
+  const limitMB = getRealLimitBytes() / (1024 * 1024);
+  const overLimit =
+    outputFileSize !== null && outputFileSize > getRealLimitBytes();
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -389,14 +442,14 @@ export default function VideoCompressor({
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-1.5 p-1.5 bg-slate-900/90 border border-slate-800 rounded-xl backdrop-blur-xl shadow-inner">
           <button
             type="button"
-            onClick={() => setPreset("discord-8")}
+            onClick={() => setPreset("discord-20")}
             className={`py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
-              preset === "discord-8"
+              preset === "discord-20"
                 ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
                 : "text-slate-300 hover:text-white hover:bg-slate-800/60"
             }`}>
             <div>Discord</div>
-            <div className="text-[10px] opacity-75">8MB Free</div>
+            <div className="text-[10px] opacity-75">20MB Free</div>
           </button>
 
           <button
@@ -582,7 +635,11 @@ export default function VideoCompressor({
                       {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
                     </span>
                     <span>•</span>
-                    <span>{Math.round(videoDuration)}s duration</span>
+                    <span>
+                      {videoDuration > 0
+                        ? `${Math.round(videoDuration)}s duration`
+                        : "length read on start"}
+                    </span>
                     <span>•</span>
                     <span className="text-indigo-400 font-semibold">
                       Target: {getTargetMB().toFixed(1)} MB
@@ -645,37 +702,89 @@ export default function VideoCompressor({
             {/* Completion View */}
             {compressedBlobUrl && outputFileSize && (
               <div className="py-8 space-y-6 text-center">
-                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div
+                  className={`inline-flex items-center justify-center p-3.5 border rounded-2xl shadow-lg ${
+                    overLimit
+                      ? "bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-amber-500/10"
+                      : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-emerald-500/10"
+                  }`}>
+                  {overLimit ? (
+                    <AlertCircle className="w-8 h-8" />
+                  ) : (
+                    <CheckCircle2 className="w-8 h-8" />
+                  )}
                 </div>
 
                 <div>
                   <h3 className="text-2xl font-bold text-white tracking-tight">
-                    Video Successfully Shrunk
+                    {alreadyUnderLimit
+                      ? "Already Under the Limit"
+                      : overLimit
+                        ? "Couldn't Reach the Size Limit"
+                        : "Video Successfully Shrunk"}
                   </h3>
                   <p className="mt-2 text-sm text-slate-400">
-                    Compressed from{" "}
-                    <span className="text-slate-400 line-through font-mono">
-                      {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </span>{" "}
-                    down to{" "}
-                    <span className="text-emerald-400 font-bold text-lg font-mono">
-                      {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
-                    </span>{" "}
-                    <span className="text-xs text-emerald-500 font-medium">
-                      (
-                      {((1 - outputFileSize / videoFile.size) * 100).toFixed(0)}
-                      % smaller)
-                    </span>
+                    {alreadyUnderLimit ? (
+                      <>
+                        Your video is{" "}
+                        <span className="text-emerald-400 font-bold text-lg font-mono">
+                          {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
+                        </span>
+                        , already under the {+limitMB.toFixed(1)} MB limit and
+                        already a universally playable MP4, so no re-encoding
+                        was needed. Download it as is.
+                      </>
+                    ) : (
+                      <>
+                        Compressed from{" "}
+                        <span className="text-slate-400 line-through font-mono">
+                          {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </span>{" "}
+                        down to{" "}
+                        <span
+                          className={`font-bold text-lg font-mono ${overLimit ? "text-amber-400" : "text-emerald-400"}`}>
+                          {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
+                        </span>{" "}
+                        {outputFileSize < videoFile.size ? (
+                          <span className="text-xs text-emerald-500 font-medium">
+                            (
+                            {(
+                              (1 - outputFileSize / videoFile.size) *
+                              100
+                            ).toFixed(0)}
+                            % smaller)
+                          </span>
+                        ) : (
+                          <span className="text-xs text-amber-400 font-medium">
+                            (not smaller than the original)
+                          </span>
+                        )}
+                      </>
+                    )}
                   </p>
+                  {overLimit && (
+                    <p className="mt-3 mx-auto max-w-md text-xs text-amber-300 leading-relaxed">
+                      This is still above the {+limitMB.toFixed(1)} MB limit.
+                      Try a shorter clip, or pick Custom and set a lower size.
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                   <a
                     href={compressedBlobUrl}
-                    download={`clipshrink_${videoFile.name.replace(/\.[^/.]+$/, "")}.mp4`}
+                    download={
+                      alreadyUnderLimit
+                        ? videoFile.name
+                        : `clipshrink_${videoFile.name.replace(/\.[^/.]+$/, "")}.mp4`
+                    }
                     className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition-all text-sm cursor-pointer">
-                    <Download className="w-4 h-4" /> Download Compressed MP4
+                    <Download className="w-4 h-4" />{" "}
+                    {alreadyUnderLimit
+                      ? "Download Original MP4"
+                      : overLimit
+                        ? "Download Anyway"
+                        : "Download Compressed MP4"}
                   </a>
                   <button
                     onClick={resetAll}

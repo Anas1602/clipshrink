@@ -7,6 +7,8 @@ import SeoContent, { SpokeType } from "@/components/SeoContent";
 interface SpokeData {
   slug: string;
   preset: TargetPreset;
+  /** Starting size for the Custom tab (only used when preset is "custom"). */
+  customMB?: number;
   spokeType: SpokeType;
   title: string;
   h1: string;
@@ -17,14 +19,14 @@ interface SpokeData {
 const SPOKES: Record<string, SpokeData> = {
   "compress-for-discord-8mb": {
     slug: "compress-for-discord-8mb",
-    preset: "discord-8",
+    preset: "discord-20",
     spokeType: "discord-8mb",
-    title: "8MB Video Compressor for Discord — Free & No Upload (2026)",
-    h1: "8MB Video Compressor for Discord",
+    title: "Compress Video for Discord — Free 20MB Limit, No Upload (2026)",
+    h1: "Video Compressor for Discord (20MB)",
     subtitle:
-      "Shrink your gaming clips and videos below Discord’s 8MB limit instantly in your browser. 100% private, no watermarks.",
+      "Shrink clips under Discord’s free upload limit, now 20MB (it was 8MB until 2023 and 10MB until August 2026). Runs in your browser, no watermarks. Need the old 8MB or 10MB? Pick Custom.",
     description:
-      "Compress MP4, MOV, and WebM videos below Discord’s 8MB upload limit. Fast client-side WebAssembly compression with no file size limits.",
+      "Compress MP4, MOV, and WebM videos under Discord’s 20MB free upload limit (raised from 10MB in August 2026). Client-side WebAssembly, nothing is uploaded.",
   },
   "compress-for-gmail-25mb": {
     slug: "compress-for-gmail-25mb",
@@ -44,7 +46,7 @@ const SPOKES: Record<string, SpokeData> = {
     title: "Video Size Reducer for WhatsApp (16MB Limit) — ClipShrink",
     h1: "Video Size Reducer for WhatsApp (16MB)",
     subtitle:
-      "Compress video clips below WhatsApp’s 16MB file ceiling for instant sending on WhatsApp Web and mobile without quality loss.",
+      "Compress video clips below WhatsApp’s 16MB file ceiling for easier sending on WhatsApp Web and mobile, keeping the best quality the size allows.",
     description:
       "Reduce video size for WhatsApp attachments. Converts to standard H.264 MP4 with optimal 16MB bitrate limits.",
   },
@@ -96,17 +98,19 @@ const SPOKES: Record<string, SpokeData> = {
   "compress-mp4-to-10mb": {
     slug: "compress-mp4-to-10mb",
     preset: "custom",
+    customMB: 10,
     spokeType: "10mb",
     title: "Compress MP4 to 10MB Online Free — ClipShrink",
     h1: "Compress MP4 Video to 10MB",
     subtitle:
-      "Shrink any large MP4, MOV, or MKV file down to exactly 10MB with automated bitrate optimization.",
+      "Shrink any large MP4, MOV, or MKV file to just under 10MB with automated bitrate optimization.",
     description:
       "Compress MP4 files to under 10MB online for free. Fast WebAssembly processing with zero server uploads.",
   },
   "compress-video-for-email": {
     slug: "compress-video-for-email",
-    preset: "gmail-25",
+    preset: "custom",
+    customMB: 20,
     spokeType: "email-20mb",
     title: "Compress Video for Email (Under 20MB) — Free Online",
     h1: "Compress Video for Email Attachments",
@@ -117,25 +121,27 @@ const SPOKES: Record<string, SpokeData> = {
   },
   "compress-video-for-outlook": {
     slug: "compress-video-for-outlook",
-    preset: "gmail-25",
+    preset: "custom",
+    customMB: 20,
     spokeType: "outlook-20mb",
     title: "Compress Video for Outlook (20MB Limit) — ClipShrink",
     h1: "Compress Video for Outlook Attachments",
     subtitle:
-      "Reduce video file sizes to under Outlook's 20MB limit. Perfect for workplace screen recordings and presentation decks.",
+      "Reduce video file sizes to fit Outlook's typical 20MB attachment limit. Good for workplace screen recordings and presentation decks.",
     description:
-      "Reduce MP4 and MOV video size under 20MB for Microsoft Outlook attachments directly in your browser without quality loss.",
+      "Reduce MP4 and MOV video size under 20MB for Microsoft Outlook attachments directly in your browser. No uploads, no watermarks.",
   },
   "compress-video-for-slack": {
     slug: "compress-video-for-slack",
     preset: "custom",
+    customMB: 10,
     spokeType: "slack-10mb",
     title: "Compress Video for Slack (Under 10MB) — ClipShrink",
     h1: "Compress Video for Slack",
     subtitle:
-      "Shrink bug demos and video recordings under 10MB for instant playback in Slack messages without clogging storage.",
+      "Shrink bug demos and recordings to a small file that uploads fast and plays quickly in Slack. Slack allows up to 1GB per file, so 10MB is about speed and storage, not a hard limit.",
     description:
-      "Compress videos for Slack under 10MB. 100% private browser processing with zero upload queues.",
+      "Compress videos to about 10MB for fast uploads and playback in Slack. 100% private browser processing, nothing is uploaded to us.",
   },
   "compress-mp4-to-50mb": {
     slug: "compress-mp4-to-50mb",
@@ -154,21 +160,20 @@ const SPOKES: Record<string, SpokeData> = {
     spokeType: "25mb-custom",
     title: "Compress MP4 to 25MB Free Online — ClipShrink",
     h1: "Compress MP4 Video to 25MB",
-    subtitle:
-      "Automated bitrate scaling to shrink any MP4 video under 25MB without audio degradation.",
+    subtitle: "Automated bitrate scaling to shrink any MP4 video under 25MB.",
     description:
       "Reduce MP4 files to under 25MB online. Safe, client-side WebAssembly video compressor with instant download.",
   },
   "compress-mov-for-discord": {
     slug: "compress-mov-for-discord",
-    preset: "discord-8",
+    preset: "discord-20",
     spokeType: "mov-to-discord",
-    title: "Compress & Convert iPhone MOV for Discord (8MB) — ClipShrink",
+    title: "Compress & Convert iPhone MOV for Discord (20MB) — ClipShrink",
     h1: "Compress iPhone MOV for Discord",
     subtitle:
-      "Convert heavy Apple QuickTime MOV clips into Discord-compatible 8MB MP4 files that play directly in chat.",
+      "Convert heavy Apple QuickTime MOV clips into Discord-compatible MP4 files under the 20MB free limit that play directly in chat.",
     description:
-      "Convert and compress iPhone MOV videos to Discord-friendly 8MB MP4 format directly in your browser. 100% private.",
+      "Convert and compress iPhone MOV videos to Discord-friendly MP4 under the 20MB free limit, directly in your browser. 100% private.",
   },
 };
 
@@ -241,12 +246,6 @@ export default async function SpokePage({
       {
         "@type": "ListItem",
         position: 2,
-        name: "Video Compressors",
-        item: "https://clipshrink.com",
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
         name: spoke.h1,
         item: `https://clipshrink.com/video/${spoke.slug}`,
       },
@@ -297,7 +296,10 @@ export default async function SpokePage({
       </div>
 
       <div className="relative z-10">
-        <VideoCompressor initialPreset={spoke.preset} />
+        <VideoCompressor
+          initialPreset={spoke.preset}
+          initialCustomMB={spoke.customMB}
+        />
       </div>
 
       <div className="relative z-10">

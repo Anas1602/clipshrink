@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
-import CookieConsent from "@/components/CookieConsent";
+import CookieConsent, {
+  CookieSettingsButton,
+} from "@/components/CookieConsent";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 
@@ -21,19 +23,33 @@ export default function RootLayout({
     <html lang="en" className="overflow-x-hidden">
       <body
         className={`${inter.className} bg-slate-950 text-slate-100 antialiased overflow-x-hidden min-h-screen flex flex-col`}>
-        {/* Google Analytics 4 Scripts */}
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-42HGTD9K87"
-        />
+        {/* Google Analytics 4 with Consent Mode v2.
+            Consent defaults (denied) are queued BEFORE config, and a previously
+            saved "granted" choice is restored before config too, so returning
+            visitors who accepted are not stuck on denied. */}
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied'
+            });
+            try {
+              if (localStorage.getItem('clipshrink_consent') === 'granted') {
+                gtag('consent', 'update', { analytics_storage: 'granted' });
+              }
+            } catch (e) {}
             gtag('js', new Date());
             gtag('config', 'G-42HGTD9K87');
           `}
         </Script>
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-42HGTD9K87"
+        />
 
         {/* Responsive Mobile / Desktop Navigation */}
         <Navbar />
@@ -68,6 +84,7 @@ export default function RootLayout({
               <Link href="/privacy-policy" className="hover:underline">
                 Privacy Policy
               </Link>
+              <CookieSettingsButton />
               <Link href="/terms-of-service" className="hover:underline">
                 Terms of Service
               </Link>

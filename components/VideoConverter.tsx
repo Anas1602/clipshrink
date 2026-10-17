@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { probeMedia, planMp4Conversion } from "@/lib/probeMedia";
 import {
   Upload,
   CheckCircle2,
@@ -43,8 +44,9 @@ export default function VideoConverter({
   const [convertedBlobUrl, setConvertedBlobUrl] = useState<string | null>(null);
   const [outputFileSize, setOutputFileSize] = useState<number | null>(null);
   const [processingMode, setProcessingMode] = useState<
-    "stream-copy" | "transcode" | null
+    "stream-copy" | "audio-transcode" | "transcode" | null
   >(null);
+  const [sourceCodec, setSourceCodec] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -124,6 +126,7 @@ export default function VideoConverter({
     setConvertedBlobUrl(null);
     setOutputFileSize(null);
     setProcessingMode(null);
+    setSourceCodec(null);
     setProgress(0);
 
     ensureFFmpegLoaded();
@@ -187,36 +190,44 @@ export default function VideoConverter({
         setProcessingMode("transcode");
       } else {
         // ==========================================
-        // TIER 1: INSTANT STREAM COPY (-c copy)
+        // TIER 1: INSTANT STREAM COPY (-c copy), only when safe
         // ==========================================
+        setStatusMessage("Reading video details...");
+        setProgress(25);
+        const probe = await probeMedia(ffmpeg, inputFileName);
+        setSourceCodec(probe.videoCodec);
+        const plan = planMp4Conversion(probe);
+
         let streamCopySuccess = false;
-        try {
-          setStatusMessage("Attempting instant stream-copy remux (0.5s)...");
-          setProgress(40);
+        if (plan !== "transcode") {
+          try {
+            const audioFix = plan === "audio-transcode";
+            setStatusMessage(
+              audioFix
+                ? "Copying video, converting audio to AAC..."
+                : "Copying streams without re-encoding...",
+            );
+            setProgress(40);
 
-          await ffmpeg.exec([
-            "-i",
-            inputFileName,
-            "-c",
-            "copy",
-            "-movflags",
-            "+faststart",
-            "-y",
-            outputFileName,
-          ]);
+            const copyArgs = ["-i", inputFileName, "-c", "copy"];
+            if (audioFix) copyArgs.push("-c:a", "aac", "-b:a", "160k");
+            copyArgs.push("-movflags", "+faststart", "-y", outputFileName);
 
-          const data = (await ffmpeg.readFile(outputFileName)) as Uint8Array;
-          if (data && data.byteLength > 1000) {
-            outputBlob = toSafeBlob(data, outputMime);
-            streamCopySuccess = true;
-            setProcessingMode("stream-copy");
+            const exitCode = await ffmpeg.exec(copyArgs);
+
+            const data = (await ffmpeg.readFile(outputFileName)) as Uint8Array;
+            if (exitCode === 0 && data && data.byteLength > 1000) {
+              outputBlob = toSafeBlob(data, outputMime);
+              streamCopySuccess = true;
+              setProcessingMode(audioFix ? "audio-transcode" : "stream-copy");
+            }
+          } catch (copyErr) {
+            console.warn(
+              "Stream copy incompatible with streams, falling back to Tier 2 transcode:",
+              copyErr,
+            );
+            streamCopySuccess = false;
           }
-        } catch (copyErr) {
-          console.warn(
-            "Stream copy incompatible with streams, falling back to Tier 2 transcode:",
-            copyErr,
-          );
-          streamCopySuccess = false;
         }
 
         // ==========================================
@@ -224,11 +235,13 @@ export default function VideoConverter({
         // ==========================================
         if (!streamCopySuccess) {
           setStatusMessage(
-            "Stream copy incompatible. Running ultrafast compatibility transcode...",
+            plan === "transcode"
+              ? "Converting to H.264 so it plays everywhere. This re-encodes the video and can take a while..."
+              : "Stream copy incompatible. Running ultrafast compatibility transcode...",
           );
           setProgress(30);
 
-          await ffmpeg.exec([
+          const transcodeExit = await ffmpeg.exec([
             "-i",
             inputFileName,
             "-c:v",
@@ -248,6 +261,12 @@ export default function VideoConverter({
             "-y",
             outputFileName,
           ]);
+
+          if (transcodeExit !== 0) {
+            throw new Error(
+              `ffmpeg transcode exited with code ${transcodeExit}`,
+            );
+          }
 
           const data = (await ffmpeg.readFile(outputFileName)) as Uint8Array;
           outputBlob = toSafeBlob(data, outputMime);
@@ -294,6 +313,7 @@ export default function VideoConverter({
     setConvertedBlobUrl(null);
     setOutputFileSize(null);
     setProcessingMode(null);
+    setSourceCodec(null);
     setProgress(0);
     setError(null);
   };
@@ -455,8 +475,10 @@ export default function VideoConverter({
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
                     {processingMode === "stream-copy"
-                      ? "⚡ Lossless Stream-Copy (0.5s)"
-                      : "🎬 Compatibility Transcode Complete"}
+                      ? "⚡ Lossless Stream-Copy (no re-encoding)"
+                      : processingMode === "audio-transcode"
+                        ? "⚡ Video Copied, Audio Converted to AAC"
+                        : "🎬 Re-encoded to H.264 for Compatibility"}
                   </div>
                   <h3 className="text-2xl font-bold text-white tracking-tight">
                     File Successfully Converted!
@@ -465,6 +487,16 @@ export default function VideoConverter({
                     Output: {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
                     &middot; Format: .{targetFormat.toUpperCase()}
                   </p>
+                  {processingMode === "transcode" && sourceCodec && (
+                    <p className="mt-2 text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                      Re-encoded from{" "}
+                      {sourceCodec === "hevc"
+                        ? "HEVC (H.265)"
+                        : sourceCodec.toUpperCase()}{" "}
+                      to H.264 so it plays on Windows, Android, and Discord.
+                      H.264 files can be slightly larger than HEVC.
+                    </p>
+                  )}
                 </div>
 
                 {/* Inline Video/Audio Preview Player */}

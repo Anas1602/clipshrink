@@ -7,7 +7,7 @@ import { Layers, ArrowRight } from "lucide-react";
 export const metadata: Metadata = {
   title: "Instant Video Converter — Free In-Browser Remuxing (2026)",
   description:
-    "Convert MKV, HEVC, MOV, WebM, and MP4 videos in under 1 second using WebAssembly stream-copying. 100% private in-browser processing with zero server queues.",
+    "Convert MKV, HEVC, MOV, WebM, and MP4 videos in your browser with WebAssembly. H.264 files are copied without re-encoding; HEVC and other codecs are converted to universally playable H.264. 100% private, nothing is uploaded.",
   alternates: {
     canonical: "https://clipshrink.com/convert",
   },
@@ -17,7 +17,7 @@ const CONVERTER_CARDS = [
   {
     title: "MKV to MP4",
     badge: "OBS STREAMERS",
-    desc: "Remux OBS Studio and gaming clips to universal MP4 in 0.5s with zero quality loss.",
+    desc: "Remux OBS Studio and gaming clips to universal MP4, with no re-encoding when the video is already H.264.",
     href: "/convert/mkv-to-mp4",
   },
   {
@@ -65,7 +65,7 @@ const CONVERTER_CARDS = [
   {
     title: "TS to MP4",
     badge: "STREAM CAPTURE",
-    desc: "Lossless container swap for broadcast transport streams and capture cards.",
+    desc: "Container swap for broadcast transport streams and capture cards, with no re-encoding for H.264.",
     href: "/convert/ts-to-mp4",
   },
   {
@@ -90,7 +90,7 @@ export default function ConvertHubPage() {
             Local WebAssembly Stream-Copy
           </span>
           <span className="text-slate-600">•</span>
-          <span className="text-slate-400">0.5s In-Browser Processing</span>
+          <span className="text-slate-400">In-Browser Processing</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
