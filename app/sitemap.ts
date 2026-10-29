@@ -5,13 +5,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Fixed group update dates. Update a group only when its pages actually change.
   const MODIFIED = {
-    hubs: new Date("2026-10-17"),
-    compress: new Date("2026-10-17"),
+    hubs: new Date("2026-10-30"),
+    compress: new Date("2026-10-30"),
     convert: new Date("2026-10-17"),
     extract: new Date("2026-10-17"),
     trim: new Date("2026-10-13"),
     mute: new Date("2026-10-13"),
-    legal: new Date("2026-10-17"),
+    legal: new Date("2026-10-30"),
   };
 
   // Tool #1: Video Compressor Spokes (14 routes)
@@ -57,7 +57,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   // Tool #4: Audio Extractor Spokes (6 routes)
-  // Note: /extract-audio/quicktime-to-mp3 was removed (301 redirects to /convert/quicktime-to-mp3)
   const extractorSpokes = [
     "/extract-audio/mov-to-mp3",
     "/extract-audio/mp4-to-mp3",

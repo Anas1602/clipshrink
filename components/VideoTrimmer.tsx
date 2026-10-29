@@ -10,9 +10,7 @@ import {
   Download,
   Sparkles,
   RefreshCw,
-  Zap,
   ShieldCheck,
-  Cpu,
   ArrowRight,
   Scissors,
   Play,
@@ -33,6 +31,7 @@ export default function VideoTrimmer({
   title = "Instant Video Trimmer",
   subtitle = "Cut and trim video clips in 0.1s using in-browser WebAssembly stream-copy. 100% private, zero watermarks.",
 }: VideoTrimmerProps) {
+  void title;
   const [loaded, setLoaded] = useState(false);
   const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -242,7 +241,7 @@ export default function VideoTrimmer({
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-      setStatusMessage("Performing sub-second stream-copy cut...");
+      setStatusMessage("Performing lossless stream-copy cut...");
       setProgress(45);
 
       const startStr = startTime.toFixed(2);
@@ -250,7 +249,6 @@ export default function VideoTrimmer({
 
       let succeeded = false;
 
-      // Tier 1: Instant Lossless Stream-Copy (-c copy)
       try {
         await ffmpeg.exec([
           "-ss",
@@ -285,9 +283,10 @@ export default function VideoTrimmer({
         succeeded = false;
       }
 
-      // Tier 2: Transcode fallback for complex containers
       if (!succeeded) {
-        setStatusMessage("Aligning keyframes with ultrafast transcode...");
+        setStatusMessage(
+          "Aligning keyframes with fast compatibility transcode...",
+        );
         setProgress(60);
 
         await ffmpeg.exec([
@@ -369,29 +368,8 @@ export default function VideoTrimmer({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Console Card Container */}
-      <div className="relative bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden backdrop-blur-xl">
-        {/* Terminal Header Bar */}
-        <div className="px-5 py-3 border-b border-slate-800/80 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
-          <div className="flex items-center gap-2 truncate pr-2">
-            <div className="flex gap-1.5 shrink-0">
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-            </div>
-            <span className="font-mono text-[11px] text-slate-400 ml-2 truncate">
-              stream-cut v1.0 &middot; {title}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-[11px] shrink-0">
-            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              0.1s Stream-Copy Ready
-            </span>
-          </div>
-        </div>
-
+      {/* Main Container Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {/* Dropzone State */}
         {!file ? (
           <div
@@ -409,7 +387,7 @@ export default function VideoTrimmer({
                 fileInputRef.current?.click();
               }
             }}
-            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center group hover:bg-indigo-950/10 focus:outline-none">
+            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center hover:bg-slate-50/70 focus:outline-hidden">
             <input
               ref={fileInputRef}
               type="file"
@@ -424,53 +402,47 @@ export default function VideoTrimmer({
               }
             />
 
-            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 group-hover:scale-105 group-hover:border-indigo-400/40 transition-all shadow-lg shadow-indigo-600/10">
-              <Scissors className="w-7 h-7 text-indigo-400" />
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
+              <Scissors className="w-7 h-7" />
             </div>
 
-            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
               Drop your {sourceContext ? sourceContext : "video"} here or{" "}
-              <span className="text-indigo-400 underline underline-offset-4 decoration-indigo-400/40 group-hover:decoration-indigo-400">
+              <span className="text-indigo-600 underline underline-offset-4 hover:text-indigo-700">
                 browse files
               </span>
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed mb-6">
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed mb-6">
               {subtitle}
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <Zap className="w-3.5 h-3.5 text-amber-400" /> 0.1s Stream-Cut
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100%
-                Private RAM
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <Cpu className="w-3.5 h-3.5 text-indigo-400" /> No Watermarks
+            <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>
+                100% In-Browser Stream Copy &middot; Zero Quality Loss
               </span>
             </div>
           </div>
         ) : (
           <div className="p-6 sm:p-8">
             {/* File Info Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
+                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
                   <FileVideo className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white truncate max-w-xs sm:max-w-md text-sm sm:text-base">
+                  <h3 className="font-semibold text-slate-900 truncate max-w-xs sm:max-w-md text-sm sm:text-base">
                     {file.name}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 font-mono">
+                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-mono">
                     <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                     <span>•</span>
                     <span>{formatSeconds(videoDuration)} total</span>
                     <span>•</span>
-                    <span className="text-indigo-400 font-semibold">
-                      Cut: {formatSeconds(endTime - startTime)}
+                    <span className="text-indigo-600 font-semibold">
+                      Trimmed: {formatSeconds(endTime - startTime)}
                     </span>
                   </div>
                 </div>
@@ -479,7 +451,7 @@ export default function VideoTrimmer({
               {!isProcessing && !trimmedBlobUrl && (
                 <button
                   onClick={resetAll}
-                  className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3 rounded-lg border border-slate-800 hover:bg-slate-800">
+                  className="text-xs text-slate-600 hover:text-slate-900 transition-colors cursor-pointer py-1.5 px-3 rounded-lg border border-slate-200 hover:bg-slate-50">
                   Choose another file
                 </button>
               )}
@@ -488,8 +460,8 @@ export default function VideoTrimmer({
             {/* Interactive Trimmer Console */}
             {!trimmedBlobUrl && (
               <div className="py-6 space-y-6">
-                {/* Live Video Scrubber Preview */}
-                <div className="relative max-w-lg mx-auto bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                {/* Video Preview Scrubber */}
+                <div className="relative max-w-lg mx-auto bg-black rounded-xl overflow-hidden border border-slate-200 shadow-xs">
                   {previewSrc && (
                     <video
                       ref={videoPlayerRef}
@@ -503,40 +475,41 @@ export default function VideoTrimmer({
                   <button
                     type="button"
                     onClick={togglePlay}
-                    className="absolute bottom-3 left-3 p-2 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700/80 backdrop-blur-md transition-all cursor-pointer">
+                    className="absolute bottom-3 left-3 p-2 rounded-lg bg-white/90 hover:bg-white text-slate-900 border border-slate-200 shadow-sm backdrop-blur-md transition-colors cursor-pointer">
                     {isPlaying ? (
                       <Pause className="w-4 h-4" />
                     ) : (
                       <Play className="w-4 h-4" />
                     )}
                   </button>
-                  <span className="absolute bottom-3 right-3 text-[11px] font-mono text-slate-300 bg-slate-900/80 px-2 py-1 rounded border border-slate-700/80 backdrop-blur-md">
+                  <span className="absolute bottom-3 right-3 text-[11px] font-mono font-medium text-slate-900 bg-white/90 px-2 py-1 rounded border border-slate-200 shadow-xs backdrop-blur-md">
                     {formatSeconds(currentTime)} /{" "}
                     {formatSeconds(videoDuration)}
                   </span>
                 </div>
 
                 {/* Timeline Range Scrubber */}
-                <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-4">
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-                    <span className="text-indigo-400">
-                      Start: <strong>{formatSeconds(startTime)}</strong>
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-600">
+                    <span className="text-indigo-600 font-semibold">
+                      Start: {formatSeconds(startTime)}
                     </span>
-                    <span className="text-purple-400">
-                      Duration:{" "}
-                      <strong>{formatSeconds(endTime - startTime)}</strong>
+                    <span className="text-slate-500">
+                      Duration: {formatSeconds(endTime - startTime)}
                     </span>
-                    <span className="text-emerald-400">
-                      End: <strong>{formatSeconds(endTime)}</strong>
+                    <span className="text-emerald-600 font-semibold">
+                      End: {formatSeconds(endTime)}
                     </span>
                   </div>
 
                   {/* Dual Sliders */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-[11px] text-slate-500 mb-1">
-                        <span>Set In-Point (Start)</span>
-                        <span>{startTime.toFixed(1)}s</span>
+                        <span>Set Start Position</span>
+                        <span className="font-mono">
+                          {startTime.toFixed(1)}s
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -552,14 +525,14 @@ export default function VideoTrimmer({
                           setStartTime(val);
                           seekTo(val);
                         }}
-                        className="w-full accent-indigo-500 cursor-pointer"
+                        className="w-full accent-indigo-600 cursor-pointer"
                       />
                     </div>
 
                     <div>
                       <div className="flex justify-between text-[11px] text-slate-500 mb-1">
-                        <span>Set Out-Point (End)</span>
-                        <span>{endTime.toFixed(1)}s</span>
+                        <span>Set End Position</span>
+                        <span className="font-mono">{endTime.toFixed(1)}s</span>
                       </div>
                       <input
                         type="range"
@@ -575,7 +548,7 @@ export default function VideoTrimmer({
                           setEndTime(val);
                           seekTo(val);
                         }}
-                        className="w-full accent-emerald-500 cursor-pointer"
+                        className="w-full accent-emerald-600 cursor-pointer"
                       />
                     </div>
                   </div>
@@ -587,62 +560,61 @@ export default function VideoTrimmer({
             {isProcessing && (
               <div className="py-8 space-y-4">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-300 font-medium flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                  <span className="text-slate-700 font-medium">
                     {statusMessage}
                   </span>
-                  <span className="font-mono font-bold text-indigo-400 text-sm">
+                  <span className="font-mono font-bold text-indigo-600 text-sm">
                     {progress}%
                   </span>
                 </div>
 
-                <div className="w-full bg-slate-950 border border-slate-800 h-3 rounded-full overflow-hidden p-0.5">
+                <div className="w-full bg-slate-100 border border-slate-200 h-3 rounded-full overflow-hidden p-0.5">
                   <div
-                    className="bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-400 h-full transition-all duration-300 rounded-full"
+                    className="bg-indigo-600 h-full transition-all duration-300 rounded-full"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
 
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono">
+                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                   <span>Engine: WebAssembly StreamCopy</span>
-                  <span>100% In-Browser RAM</span>
+                  <span>Zero Data Uploaded</span>
                 </div>
               </div>
             )}
 
-            {/* Complete View */}
+            {/* Completion View */}
             {trimmedBlobUrl && outputFileSize && (
               <div className="py-8 space-y-6 text-center">
-                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10">
+                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-600 shadow-xs">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
 
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
                     {processingMode === "stream-copy"
-                      ? "⚡ Lossless Stream-Copy Cut (0.1s)"
+                      ? "⚡ Lossless Stream-Copy Cut (No Re-encoding)"
                       : "🎬 Keyframe-Aligned Transcode Complete"}
                   </div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
                     Video Trimmed Successfully!
                   </h3>
-                  <p className="mt-1 text-xs text-slate-400 font-mono">
+                  <p className="mt-1 text-xs text-slate-500 font-mono">
                     New Size: {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
                     &middot; Length: {formatSeconds(endTime - startTime)}
                   </p>
                 </div>
 
-                {/* Inline Live Preview Scrubber of the Output */}
-                <div className="max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-inner p-2">
+                {/* Inline Preview Player */}
+                <div className="max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-2 shadow-xs">
                   <video
                     controls
                     playsInline
                     className="w-full max-h-56 rounded-lg bg-black"
                     src={trimmedBlobUrl}
                   />
-                  <p className="text-[10px] text-emerald-400 mt-2 font-mono flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Verified Trimmed
-                    Playback
+                  <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />{" "}
+                    Verified Trimmed Playback
                   </p>
                 </div>
 
@@ -650,12 +622,12 @@ export default function VideoTrimmer({
                   <a
                     href={trimmedBlobUrl}
                     download={`trimmed_${file.name.replace(/\.[^/.]+$/, "")}.mp4`}
-                    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition-all text-sm cursor-pointer">
+                    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-xs transition-colors text-sm cursor-pointer">
                     <Download className="w-4 h-4" /> Download Trimmed Video
                   </a>
                   <button
                     onClick={resetAll}
-                    className="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-xl border border-slate-800 transition-all text-sm cursor-pointer">
+                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-medium py-3 px-6 rounded-xl border border-slate-200 transition-colors text-sm cursor-pointer">
                     <RefreshCw className="w-4 h-4" /> Trim Another Clip
                   </button>
                 </div>
@@ -668,7 +640,7 @@ export default function VideoTrimmer({
                 <button
                   onClick={startTrimming}
                   disabled={isLoadingFFmpeg}
-                  className="w-full bg-linear-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
                   <Sparkles className="w-4 h-4" />
                   Trim Video Now ({formatSeconds(endTime - startTime)} &middot;
                   Instant 0.1s)
@@ -681,8 +653,8 @@ export default function VideoTrimmer({
       </div>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-950/40 border border-red-800/60 rounded-xl text-red-300 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
           <span>{error}</span>
         </div>
       )}

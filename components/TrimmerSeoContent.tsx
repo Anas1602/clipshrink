@@ -154,7 +154,7 @@ const FAQ_DATA: Record<string, FaqItem[]> = {
 const COMMON_USE_CASES = [
   {
     title: "Cut Dead Air from Gaming Clips",
-    desc: "Slice off the first 30 seconds of waiting in lobby queues before sharing your clutch highlights on Discord or Reddit.",
+    desc: "Slice off the first 30 seconds of waiting in lobby queues before sharing your highlights on Discord or Reddit.",
   },
   {
     title: "Clean Up Meeting & Screen Recordings",
@@ -178,7 +178,7 @@ const COMPARISON_ROWS = [
   },
   {
     feature: "Watermark Policy",
-    cloud: "Prominent branding watermark unless paid (Clideo)",
+    cloud: "Prominent branding watermark unless paid",
     clipshrink: "100% Clean & Watermark-Free Always",
   },
   {
@@ -217,7 +217,7 @@ export default function TrimmerSeoContent({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-20 space-y-20 text-slate-300">
+    <div className="w-full max-w-4xl mx-auto mt-20 space-y-20 text-slate-700">
       {/* FAQ Schema */}
       <script
         type="application/ld+json"
@@ -226,48 +226,50 @@ export default function TrimmerSeoContent({
 
       {/* End-to-End Privacy Flow Diagram */}
       <section aria-labelledby="privacy-flow-heading" className="text-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
           <Shield className="w-3.5 h-3.5" />
           End-to-End Local Architecture
         </div>
         <h2
           id="privacy-flow-heading"
-          className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+          className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
           Trimmed on Your Device, End to End
         </h2>
-        <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto mb-10">
+        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-10">
           Your video never uploads to an external server. Browser RAM cuts the
           stream in 0.1 seconds.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3">
               <Laptop className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-white text-sm mb-1">Your Device</h3>
+            <h3 className="font-bold text-slate-900 text-sm mb-1">
+              Your Device
+            </h3>
             <p className="text-xs text-slate-400 font-mono">
               Original Video File
             </p>
           </div>
 
-          <div className="bg-indigo-950/30 border border-indigo-500/30 p-6 rounded-2xl backdrop-blur-xl relative">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-3">
-              <Zap className="w-6 h-6 text-amber-400" />
+          <div className="bg-white border border-indigo-200 p-6 rounded-2xl shadow-xs relative">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3">
+              <Zap className="w-6 h-6 text-amber-500" />
             </div>
-            <h3 className="font-bold text-white text-sm mb-1">
+            <h3 className="font-bold text-slate-900 text-sm mb-1">
               In-Browser RAM
             </h3>
-            <p className="text-xs text-indigo-300 font-mono">
+            <p className="text-xs text-indigo-600 font-mono font-medium">
               WASM Stream-Cut (0.1s)
             </p>
           </div>
 
-          <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl">
-            <div className="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3">
               <Scissors className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-white text-sm mb-1">
+            <h3 className="font-bold text-slate-900 text-sm mb-1">
               Instant Download
             </h3>
             <p className="text-xs text-slate-400 font-mono">
@@ -280,13 +282,13 @@ export default function TrimmerSeoContent({
       {/* Common Everyday Use Cases */}
       <section aria-labelledby="use-cases-heading">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             Everyday Applications
           </div>
           <h2
             id="use-cases-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Why Use In-Browser Stream Trimming?
           </h2>
         </div>
@@ -295,12 +297,12 @@ export default function TrimmerSeoContent({
           {COMMON_USE_CASES.map((uc, i) => (
             <div
               key={i}
-              className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl backdrop-blur-xl hover:border-slate-700/80 transition-all">
-              <div className="w-2 h-2 rounded-full bg-indigo-400 mb-3" />
-              <h3 className="font-semibold text-white text-sm mb-1.5">
+              className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
+              <div className="w-2 h-2 rounded-full bg-indigo-600 mb-3" />
+              <h3 className="font-semibold text-slate-900 text-sm mb-1.5">
                 {uc.title}
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {uc.desc}
               </p>
             </div>
@@ -308,58 +310,55 @@ export default function TrimmerSeoContent({
         </div>
       </section>
 
-      {/* Comparison Matrix: ClipShrink vs Clideo & 123apps */}
+      {/* Comparison Matrix */}
       <section aria-labelledby="comparison-heading">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <Layers className="w-3.5 h-3.5" />
             Architectural Comparison
           </div>
           <h2
             id="comparison-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            ClipShrink vs. Cloud Cutters (Clideo & 123apps)
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            ClipShrink vs. Cloud Cutters
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
             Why stream-cutting inside local browser memory is faster, cleaner,
-            and strictly safer.
+            and safer.
           </p>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/80">
-                  <th className="py-4 px-5 text-slate-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="py-4 px-5 text-slate-600 font-semibold uppercase tracking-wider text-[11px] w-1/3">
                     Feature
                   </th>
-                  <th className="py-4 px-5 text-slate-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
-                    Legacy Cloud Editors (Clideo / 123apps)
+                  <th className="py-4 px-5 text-slate-600 font-semibold uppercase tracking-wider text-[11px] w-1/3">
+                    Legacy Cloud Editors
                   </th>
-                  <th className="py-4 px-5 text-indigo-400 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-950/20 border-l border-r border-indigo-500/20">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      ClipShrink In-Browser RAM
-                    </span>
+                  <th className="py-4 px-5 text-indigo-700 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-50/50 border-l border-r border-indigo-100">
+                    ClipShrink In-Browser RAM
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-sans">
+              <tbody className="divide-y divide-slate-100 font-sans">
                 {COMPARISON_ROWS.map((row, idx) => (
                   <tr
                     key={idx}
-                    className="hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3.5 px-5 font-medium text-white">
+                    className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3.5 px-5 font-medium text-slate-900">
                       {row.feature}
                     </td>
-                    <td className="py-3.5 px-5 text-slate-400 flex items-center gap-2">
-                      <X className="w-4 h-4 text-rose-500/80 shrink-0" />
+                    <td className="py-3.5 px-5 text-slate-500 flex items-center gap-2">
+                      <X className="w-4 h-4 text-rose-500 shrink-0" />
                       <span>{row.cloud}</span>
                     </td>
-                    <td className="py-3.5 px-5 text-slate-200 font-medium bg-indigo-950/10 border-l border-r border-indigo-500/20">
-                      <div className="flex items-center gap-2 text-indigo-300">
-                        <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <td className="py-3.5 px-5 text-slate-900 font-medium bg-indigo-50/20 border-l border-r border-indigo-100">
+                      <div className="flex items-center gap-2 text-indigo-700">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{row.clipshrink}</span>
                       </div>
                     </td>
@@ -374,13 +373,13 @@ export default function TrimmerSeoContent({
       {/* Accordion FAQs */}
       <section aria-labelledby="faq-heading">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <HelpCircle className="w-3.5 h-3.5" />
             Frequently Asked Questions
           </div>
           <h2
             id="faq-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Everything You Need to Know
           </h2>
         </div>
@@ -389,12 +388,12 @@ export default function TrimmerSeoContent({
           {faqs.map((faq, index) => (
             <details
               key={index}
-              className="group bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden backdrop-blur-xl transition-all hover:border-slate-700/80 [&_summary::-webkit-details-marker]:hidden">
-              <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none text-white font-medium text-sm sm:text-base hover:text-indigo-300 transition-colors">
+              className="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:border-slate-300 transition-colors [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none text-slate-900 font-medium text-sm sm:text-base hover:text-indigo-600 transition-colors">
                 <span className="pr-4">{faq.question}</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200 shrink-0" />
               </summary>
-              <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/40">
+              <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">
                 {faq.answer}
               </div>
             </details>
@@ -402,55 +401,55 @@ export default function TrimmerSeoContent({
         </div>
       </section>
 
-      {/* Spokes Navigation */}
-      <section className="border-t border-slate-800/80 pt-12 pb-6">
+      {/* Internal Spokes Navigation */}
+      <section className="border-t border-slate-200 pt-12 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Dedicated Video Trimming Tools
           </h3>
-          <span className="text-[11px] text-slate-600 font-mono">
+          <span className="text-[11px] text-slate-400 font-mono">
             0.1s Stream-Copy
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
           <Link
             href="/trim-video/trim-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
-            Trim MP4 Video (4.4K) →
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
+            Trim MP4 Video →
           </Link>
           <Link
             href="/trim-video/cut-mkv"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Cut MKV Video (OBS) →
           </Link>
           <Link
             href="/trim-video/trim-mov"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Trim MOV Video (iPhone) →
           </Link>
           <Link
             href="/trim-video/cut-video-for-discord"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Cut Video for Discord →
           </Link>
           <Link
             href="/trim-video/trim-webm"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Trim WebM (Screens) →
           </Link>
           <Link
             href="/trim-video/cut-gif"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Cut GIF (Memes) →
           </Link>
           <Link
             href="/trim-video/lossless-video-cutter"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Lossless Stream Cutter →
           </Link>
           <Link
             href="/trim-video/trim-video-no-watermark"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Trim No Watermark →
           </Link>
         </div>

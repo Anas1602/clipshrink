@@ -48,39 +48,28 @@ export default function HomePage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-slate-950 px-4 py-8 sm:py-16 overflow-hidden">
-      {/* Background Ambient Grid & Radial Glow */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2xl h-88 bg-indigo-500/10 blur-[130px] rounded-full pointer-events-none" />
-
-      {/* Structured Data for SEO & Entity Graph */}
+    <main className="min-h-screen px-4 py-8 sm:py-16">
+      {/* Structured Data for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="relative max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-        {/* Top Status Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs text-slate-300 mb-6 backdrop-blur-md shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-medium text-slate-200">
-            Client-Side WebAssembly
-          </span>
-          <span className="text-slate-600">•</span>
-          <span className="text-slate-400">Zero Server Uploads</span>
+      <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
+        {/* Clean, Subtle Trust Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-slate-200 text-xs font-medium text-slate-600 mb-6 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Local WebAssembly &middot; Zero Server Uploads</span>
         </div>
 
-        {/* High-Intent SEO Headline */}
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
-          Video File Compressor <br />
-          <span className="bg-linear-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
-            Compress Video Online for Free
-          </span>
+        {/* Crisp Headline */}
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+          Video File Compressor
         </h1>
 
-        <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Fast in-browser video file compressor. Shrink MP4, MOV, or WebM below
-          Discord, WhatsApp, and Gmail upload ceilings with 100% device privacy.
+        <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+          Compress MP4, MOV, and WebM videos below Discord, WhatsApp, and Gmail
+          upload limits directly in your browser with complete privacy.
         </p>
       </div>
 
@@ -89,7 +78,7 @@ export default function HomePage() {
         <VideoCompressor initialPreset="discord-20" />
       </div>
 
-      {/* Server-Rendered Content Below the Fold */}
+      {/* Structured Content Below the Fold */}
       <div className="relative z-10">
         <SeoContent type="home" />
       </div>

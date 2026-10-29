@@ -11,9 +11,7 @@ import {
   Download,
   Sparkles,
   RefreshCw,
-  Zap,
   ShieldCheck,
-  Cpu,
   ArrowRight,
   Headphones,
   Music,
@@ -161,12 +159,10 @@ export default function AudioExtractor({
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-      setStatusMessage("Extracting and encoding audio stream...");
+      setStatusMessage("Extracting audio stream...");
       setProgress(50);
 
-      // FFmpeg audio extraction arguments
       if (selectedFormat === "wav") {
-        // Lossless 16-bit uncompressed PCM WAV
         await ffmpeg.exec([
           "-i",
           inputFileName,
@@ -177,7 +173,6 @@ export default function AudioExtractor({
           outputFileName,
         ]);
       } else if (selectedFormat === "mp3-320") {
-        // Studio HQ 320kbps MP3
         await ffmpeg.exec([
           "-i",
           inputFileName,
@@ -190,7 +185,6 @@ export default function AudioExtractor({
           outputFileName,
         ]);
       } else {
-        // Standard 192kbps MP3
         await ffmpeg.exec([
           "-i",
           inputFileName,
@@ -252,32 +246,32 @@ export default function AudioExtractor({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Step 2: Quality & Format Selector */}
+      {/* Format & Quality Selector */}
       <div className="mb-4">
-        <div className="flex items-center justify-between px-1 mb-2.5">
-          <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
-            <Music className="w-3.5 h-3.5 text-indigo-400" />
-            Select Output Audio Quality
+        <div className="flex items-center justify-between px-1 mb-2">
+          <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <Music className="w-3.5 h-3.5 text-indigo-600" />
+            Select Output Audio Format
           </span>
-          <span className="text-[11px] text-slate-500 font-mono">
-            {selectedFormat === "mp3-320" && "320 kbps Studio HQ"}
-            {selectedFormat === "mp3-192" && "192 kbps Standard"}
+          <span className="text-xs text-slate-500 font-mono">
+            {selectedFormat === "mp3-320" && "320 kbps Studio MP3"}
+            {selectedFormat === "mp3-192" && "192 kbps Standard MP3"}
             {selectedFormat === "wav" && "Uncompressed PCM WAV"}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-900/90 border border-slate-800 rounded-xl backdrop-blur-xl shadow-inner">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-white border border-slate-200 rounded-xl shadow-xs">
           <button
             type="button"
             onClick={() => setSelectedFormat("mp3-320")}
             className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               selectedFormat === "mp3-320"
-                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
-                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+                ? "bg-indigo-600 text-white font-semibold shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}>
             <div>MP3 &middot; 320 kbps</div>
-            <div className="text-[10px] opacity-75">
-              Studio Quality (Best for Music & Podcasts)
+            <div className="text-[10px] opacity-80">
+              Studio Quality (Best for Music & Voice)
             </div>
           </button>
 
@@ -286,11 +280,11 @@ export default function AudioExtractor({
             onClick={() => setSelectedFormat("mp3-192")}
             className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               selectedFormat === "mp3-192"
-                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
-                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+                ? "bg-indigo-600 text-white font-semibold shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}>
             <div>MP3 &middot; 192 kbps</div>
-            <div className="text-[10px] opacity-75">
+            <div className="text-[10px] opacity-80">
               Standard Quality (Compact File Size)
             </div>
           </button>
@@ -300,40 +294,19 @@ export default function AudioExtractor({
             onClick={() => setSelectedFormat("wav")}
             className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer text-center ${
               selectedFormat === "wav"
-                ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
-                : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+                ? "bg-indigo-600 text-white font-semibold shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}>
             <div>WAV &middot; Lossless</div>
-            <div className="text-[10px] opacity-75">
+            <div className="text-[10px] opacity-80">
               Uncompressed (Best for Video Editors)
             </div>
           </button>
         </div>
       </div>
 
-      {/* Main Console Container */}
-      <div className="relative bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden backdrop-blur-xl">
-        {/* Terminal Header Bar */}
-        <div className="px-5 py-3 border-b border-slate-800/80 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-700/80 inline-block" />
-            </div>
-            <span className="font-mono text-[11px] text-slate-400 ml-2">
-              audio-extract v1.0 [libmp3lame + pcm_s16le]
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-[11px]">
-            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Instant RAM Extraction
-            </span>
-          </div>
-        </div>
-
+      {/* Main Container Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {/* Dropzone State */}
         {!file ? (
           <div
@@ -351,7 +324,7 @@ export default function AudioExtractor({
                 fileInputRef.current?.click();
               }
             }}
-            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center group hover:bg-indigo-950/10 focus:outline-none">
+            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center hover:bg-slate-50/70 focus:outline-hidden">
             <input
               ref={fileInputRef}
               type="file"
@@ -362,53 +335,45 @@ export default function AudioExtractor({
               }
             />
 
-            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 group-hover:scale-105 group-hover:border-indigo-400/40 transition-all shadow-lg shadow-indigo-600/10">
-              <Upload className="w-7 h-7 text-indigo-400" />
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
+              <Upload className="w-7 h-7" />
             </div>
 
-            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-2">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
               Drop your {sourceContext ? sourceContext : "video"} here or{" "}
-              <span className="text-indigo-400 underline underline-offset-4 decoration-indigo-400/40 group-hover:decoration-indigo-400">
+              <span className="text-indigo-600 underline underline-offset-4 hover:text-indigo-700">
                 browse files
               </span>
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed mb-6">
-              Rips audio in 1 second. Zero server uploads, zero ads, and 100%
-              private in-browser memory.
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed mb-6">
+              Rips audio in 1 second. Zero server uploads, zero watermarks, and
+              100% private in-browser memory.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <Zap className="w-3.5 h-3.5 text-amber-400" /> 1-Second
-                Extraction
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100%
-                In-Browser RAM
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                <Cpu className="w-3.5 h-3.5 text-indigo-400" /> Up to 320k
-                Studio MP3
+            <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>
+                100% In-Browser RAM &middot; Up to 320kbps Studio Quality
               </span>
             </div>
           </div>
         ) : (
           <div className="p-6 sm:p-8">
             {/* File Info Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
+                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
                   <FileAudio className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white truncate max-w-xs sm:max-w-md text-sm sm:text-base">
+                  <h3 className="font-semibold text-slate-900 truncate max-w-xs sm:max-w-md text-sm sm:text-base">
                     {file.name}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 font-mono">
+                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-mono">
                     <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                     <span>•</span>
-                    <span className="text-indigo-400 font-semibold uppercase">
+                    <span className="text-indigo-600 font-semibold uppercase">
                       Extracting to:{" "}
                       {selectedFormat === "wav"
                         ? "WAV Lossless"
@@ -421,7 +386,7 @@ export default function AudioExtractor({
               {!isProcessing && !extractedAudioUrl && (
                 <button
                   onClick={resetAll}
-                  className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3 rounded-lg border border-slate-800 hover:bg-slate-800">
+                  className="text-xs text-slate-600 hover:text-slate-900 transition-colors cursor-pointer py-1.5 px-3 rounded-lg border border-slate-200 hover:bg-slate-50">
                   Choose another file
                 </button>
               )}
@@ -431,56 +396,55 @@ export default function AudioExtractor({
             {isProcessing && (
               <div className="py-8 space-y-4">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-300 font-medium flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                  <span className="text-slate-700 font-medium">
                     {statusMessage}
                   </span>
-                  <span className="font-mono font-bold text-indigo-400 text-sm">
+                  <span className="font-mono font-bold text-indigo-600 text-sm">
                     {progress}%
                   </span>
                 </div>
 
-                <div className="w-full bg-slate-950 border border-slate-800 h-3 rounded-full overflow-hidden p-0.5">
+                <div className="w-full bg-slate-100 border border-slate-200 h-3 rounded-full overflow-hidden p-0.5">
                   <div
-                    className="bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-400 h-full transition-all duration-300 rounded-full"
+                    className="bg-indigo-600 h-full transition-all duration-300 rounded-full"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
 
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono">
+                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                   <span>Engine: WebAssembly Audio Demuxer</span>
                   <span>Zero Server Uploads</span>
                 </div>
               </div>
             )}
 
-            {/* Completed State with Live Inline Audio Player */}
+            {/* Completion View */}
             {extractedAudioUrl && outputFileSize && (
               <div className="py-8 space-y-6 text-center">
-                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10">
+                <div className="inline-flex items-center justify-center p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-600 shadow-xs">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
 
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
                     ⚡{" "}
                     {selectedFormat === "wav"
                       ? "Uncompressed WAV Track"
                       : `Pristine ${selectedFormat.split("-")[1]}k MP3 Track`}
                   </div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
                     Audio Extracted Successfully!
                   </h3>
-                  <p className="mt-1 text-xs text-slate-400 font-mono">
+                  <p className="mt-1 text-xs text-slate-500 font-mono">
                     Audio Size: {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
                     &middot; Extracted in &lt; 1 Second
                   </p>
                 </div>
 
                 {/* Inline Live Audio Player */}
-                <div className="max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-inner">
-                  <div className="flex items-center justify-center gap-2 mb-2 text-xs text-slate-400">
-                    <Headphones className="w-4 h-4 text-indigo-400" />
+                <div className="max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-xs">
+                  <div className="flex items-center justify-center gap-2 mb-2 text-xs text-slate-600 font-medium">
+                    <Headphones className="w-4 h-4 text-indigo-600" />
                     <span>Verify Audio Output</span>
                   </div>
                   <audio controls className="w-full" src={extractedAudioUrl} />
@@ -490,12 +454,12 @@ export default function AudioExtractor({
                   <a
                     href={extractedAudioUrl}
                     download={`${file.name.replace(/\.[^/.]+$/, "")}.${selectedFormat === "wav" ? "wav" : "mp3"}`}
-                    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition-all text-sm cursor-pointer">
+                    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-xs transition-colors text-sm cursor-pointer">
                     <Download className="w-4 h-4" /> Download Extracted Audio
                   </a>
                   <button
                     onClick={resetAll}
-                    className="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-xl border border-slate-800 transition-all text-sm cursor-pointer">
+                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-medium py-3 px-6 rounded-xl border border-slate-200 transition-colors text-sm cursor-pointer">
                     <RefreshCw className="w-4 h-4" /> Extract Another File
                   </button>
                 </div>
@@ -508,7 +472,7 @@ export default function AudioExtractor({
                 <button
                   onClick={startExtraction}
                   disabled={isLoadingFFmpeg}
-                  className="w-full bg-linear-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
                   <Sparkles className="w-4 h-4" />
                   Extract Audio Track Now (Instant 1s)
                   <ArrowRight className="w-4 h-4 opacity-75" />
@@ -520,8 +484,8 @@ export default function AudioExtractor({
       </div>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-950/40 border border-red-800/60 rounded-xl text-red-300 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
           <span>{error}</span>
         </div>
       )}

@@ -22,11 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="overflow-x-hidden">
       <body
-        className={`${inter.className} bg-slate-950 text-slate-100 antialiased overflow-x-hidden min-h-screen flex flex-col`}>
-        {/* Google Analytics 4 with Consent Mode v2.
-            Consent defaults (denied) are queued BEFORE config, and a previously
-            saved "granted" choice is restored before config too, so returning
-            visitors who accepted are not stuck on denied. */}
+        className={`${inter.className} bg-slate-50 text-slate-900 antialiased overflow-x-hidden min-h-screen flex flex-col`}>
+        {/* Google Analytics 4 with Consent Mode v2 */}
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -59,40 +56,56 @@ export default function RootLayout({
         {/* Cookie Consent Banner */}
         <CookieConsent />
 
-        {/* Footer */}
-        <footer className="border-t border-slate-900 bg-slate-950 py-12 text-center text-xs text-slate-400 w-full">
+        {/* Clean Light Footer */}
+        <footer className="border-t border-slate-200 bg-white py-12 text-center text-xs text-slate-500 w-full">
           <div className="max-w-6xl mx-auto px-4 space-y-4">
-            <div className="flex flex-wrap justify-center gap-6 text-slate-300">
-              <Link href="/" className="hover:underline">
+            <div className="flex flex-wrap justify-center gap-6 text-slate-600 font-medium">
+              <Link href="/" className="hover:text-slate-900 transition-colors">
                 Video Compressor
               </Link>
-              <Link href="/convert" className="hover:underline">
+              <Link
+                href="/convert"
+                className="hover:text-slate-900 transition-colors">
                 Video Converter
               </Link>
-              <Link href="/trim-video" className="hover:underline">
+              <Link
+                href="/trim-video"
+                className="hover:text-slate-900 transition-colors">
                 Video Trimmer
               </Link>
-              <Link href="/remove-audio" className="hover:underline">
+              <Link
+                href="/remove-audio"
+                className="hover:text-slate-900 transition-colors">
                 Remove Audio
               </Link>
-              <Link href="/extract-audio" className="hover:underline">
+              <Link
+                href="/extract-audio"
+                className="hover:text-slate-900 transition-colors">
                 Extract Audio
               </Link>
-              <Link href="/about" className="hover:underline">
+              <Link
+                href="/about"
+                className="hover:text-slate-900 transition-colors">
                 About ClipShrink
               </Link>
-              <Link href="/privacy-policy" className="hover:underline">
+              <Link
+                href="/privacy-policy"
+                className="hover:text-slate-900 transition-colors">
                 Privacy Policy
               </Link>
               <CookieSettingsButton />
-              <Link href="/terms-of-service" className="hover:underline">
+              <Link
+                href="/terms-of-service"
+                className="hover:text-slate-900 transition-colors">
                 Terms of Service
               </Link>
-              <Link href="/contact" className="hover:underline">
+              <Link
+                href="/contact"
+                className="hover:text-slate-900 transition-colors">
                 Contact
               </Link>
             </div>
-            <p>
+            <p className="text-slate-400">
               © {new Date().getFullYear()} ClipShrink. All rights reserved.
               Video files are processed 100% locally in your browser.
             </p>

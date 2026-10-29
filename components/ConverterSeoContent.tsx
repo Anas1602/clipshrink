@@ -167,7 +167,7 @@ export default function ConverterSeoContent({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-20 space-y-20 text-slate-300">
+    <div className="w-full max-w-4xl mx-auto mt-20 space-y-20 text-slate-700">
       {/* FAQ Schema */}
       <script
         type="application/ld+json"
@@ -177,61 +177,52 @@ export default function ConverterSeoContent({
       {/* 3-Step Guided Workflow */}
       <section aria-labelledby="how-it-works-heading">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             Instant In-Browser Pipeline
           </div>
           <h2
             id="how-it-works-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             How In-Browser Stream Remuxing Works
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="relative bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl hover:border-slate-700/80 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 font-mono font-bold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 font-mono font-bold flex items-center justify-center mb-4">
               01
             </div>
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2 py-0.5 rounded-md">
-              Zero Upload
-            </span>
-            <h3 className="font-bold text-white text-base mt-2 mb-2">
+            <h3 className="font-bold text-slate-900 text-base mb-2">
               Drop Your File
             </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Drop your MKV, HEVC, MOV, WebM, or audio file. The file is read
               directly into your browser&apos;s private memory.
             </p>
           </div>
 
-          <div className="relative bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl hover:border-slate-700/80 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 font-mono font-bold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 font-mono font-bold flex items-center justify-center mb-4">
               02
             </div>
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-md">
-              Fast Execution
-            </span>
-            <h3 className="font-bold text-white text-base mt-2 mb-2">
+            <h3 className="font-bold text-slate-900 text-base mb-2">
               Stream-Copy Remux
             </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Our WebAssembly engine rewrites the container headers instantly
               without re-encoding video frames.
             </p>
           </div>
 
-          <div className="relative bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl hover:border-slate-700/80 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 font-mono font-bold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 font-mono font-bold flex items-center justify-center mb-4">
               03
             </div>
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-purple-400 bg-purple-950/60 border border-purple-800/40 px-2 py-0.5 rounded-md">
-              Verified Output
-            </span>
-            <h3 className="font-bold text-white text-base mt-2 mb-2">
+            <h3 className="font-bold text-slate-900 text-base mb-2">
               Preview & Download
             </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Play your converted video right in the browser to verify quality,
               then download immediately with zero watermarks.
             </p>
@@ -242,55 +233,52 @@ export default function ConverterSeoContent({
       {/* Comparison Matrix */}
       <section aria-labelledby="comparison-heading">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <Layers className="w-3.5 h-3.5" />
             Performance Breakdown
           </div>
           <h2
             id="comparison-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             ClipShrink In-Browser vs. Cloud Converters
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
             Why stream-copying in browser RAM outperforms remote server
             conversions on every metric.
           </p>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/80">
-                  <th className="py-4 px-5 text-slate-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="py-4 px-5 text-slate-600 font-semibold uppercase tracking-wider text-[11px] w-1/3">
                     Feature
                   </th>
-                  <th className="py-4 px-5 text-slate-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
+                  <th className="py-4 px-5 text-slate-600 font-semibold uppercase tracking-wider text-[11px] w-1/3">
                     Traditional Cloud Converters
                   </th>
-                  <th className="py-4 px-5 text-indigo-400 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-950/20 border-l border-r border-indigo-500/20">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      ClipShrink In-Browser RAM
-                    </span>
+                  <th className="py-4 px-5 text-indigo-700 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-50/50 border-l border-r border-indigo-100">
+                    ClipShrink Local WASM
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-sans">
+              <tbody className="divide-y divide-slate-100 font-sans">
                 {COMPARISON_ROWS.map((row, idx) => (
                   <tr
                     key={idx}
-                    className="hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3.5 px-5 font-medium text-white">
+                    className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3.5 px-5 font-medium text-slate-900">
                       {row.feature}
                     </td>
-                    <td className="py-3.5 px-5 text-slate-400 flex items-center gap-2">
-                      <X className="w-4 h-4 text-rose-500/80 shrink-0" />
+                    <td className="py-3.5 px-5 text-slate-500 flex items-center gap-2">
+                      <X className="w-4 h-4 text-rose-500 shrink-0" />
                       <span>{row.cloud}</span>
                     </td>
-                    <td className="py-3.5 px-5 text-slate-200 font-medium bg-indigo-950/10 border-l border-r border-indigo-500/20">
-                      <div className="flex items-center gap-2 text-indigo-300">
-                        <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <td className="py-3.5 px-5 text-slate-900 font-medium bg-indigo-50/20 border-l border-r border-indigo-100">
+                      <div className="flex items-center gap-2 text-indigo-700">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{row.clipshrink}</span>
                       </div>
                     </td>
@@ -302,16 +290,16 @@ export default function ConverterSeoContent({
         </div>
       </section>
 
-      {/* Accordion FAQs */}
+      {/* Frequently Asked Questions */}
       <section aria-labelledby="faq-heading">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <HelpCircle className="w-3.5 h-3.5" />
             Frequently Asked Questions
           </div>
           <h2
             id="faq-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Everything You Need to Know
           </h2>
         </div>
@@ -320,12 +308,12 @@ export default function ConverterSeoContent({
           {faqs.map((faq, index) => (
             <details
               key={index}
-              className="group bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden backdrop-blur-xl transition-all hover:border-slate-700/80 [&_summary::-webkit-details-marker]:hidden">
-              <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none text-white font-medium text-sm sm:text-base hover:text-indigo-300 transition-colors">
+              className="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:border-slate-300 transition-colors [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none text-slate-900 font-medium text-sm sm:text-base hover:text-indigo-600 transition-colors">
                 <span className="pr-4">{faq.question}</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200 shrink-0" />
               </summary>
-              <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/40">
+              <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">
                 {faq.answer}
               </div>
             </details>
@@ -334,54 +322,54 @@ export default function ConverterSeoContent({
       </section>
 
       {/* Internal Links to other converters */}
-      <section className="border-t border-slate-800/80 pt-12 pb-6">
+      <section className="border-t border-slate-200 pt-12 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             More Instant Format Converters
           </h3>
-          <span className="text-[11px] text-slate-600 font-mono">
+          <span className="text-[11px] text-slate-400 font-mono">
             100% In-Browser RAM
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
           <Link
             href="/convert/mkv-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             MKV to MP4 (OBS) →
           </Link>
           <Link
             href="/convert/hevc-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             HEVC to MP4 (iPhone) →
           </Link>
           <Link
             href="/convert/mov-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             MOV to MP4 (QuickTime) →
           </Link>
           <Link
             href="/convert/webm-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             WebM to MP4 (Screen) →
           </Link>
           <Link
             href="/convert/quicktime-to-mp3"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             QuickTime to MP3 →
           </Link>
           <Link
             href="/convert/opus-to-mp3"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             Opus to MP3 (Discord) →
           </Link>
           <Link
             href="/convert/m4v-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             M4V to MP4 →
           </Link>
           <Link
             href="/convert/gif-to-mp4"
-            className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 rounded-xl text-slate-300 hover:text-white transition-all">
+            className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 hover:text-slate-900 transition-colors shadow-xs">
             GIF to MP4 (Meme) →
           </Link>
         </div>

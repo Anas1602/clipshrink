@@ -165,11 +165,7 @@ export default async function AudioExtractorSpokePage({
   };
 
   return (
-    <main className="relative min-h-screen bg-slate-950 px-4 py-8 sm:py-16 overflow-hidden">
-      {/* Background Ambient Grid & Radial Glow */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2xl h-88 bg-indigo-500/10 blur-[130px] rounded-full pointer-events-none" />
-
+    <main className="min-h-screen px-4 py-8 sm:py-16">
       {/* App Schema */}
       <script
         type="application/ld+json"
@@ -181,42 +177,38 @@ export default async function AudioExtractorSpokePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="relative max-w-4xl mx-auto mb-8 sm:mb-12">
-        {/* Breadcrumb Navigation */}
+      <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
+        {/* Clean Light Breadcrumbs */}
         <nav
           aria-label="Breadcrumbs"
-          className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-6">
+          className="flex items-center justify-center gap-2 text-xs text-slate-500 mb-6">
           <Link
             href="/"
-            className="hover:text-white transition-colors px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
+            className="hover:text-slate-900 transition-colors px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs">
             Home
           </Link>
-          <span className="text-slate-600">/</span>
+          <span className="text-slate-400">/</span>
           <Link
             href="/extract-audio"
-            className="hover:text-white transition-colors px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
+            className="hover:text-slate-900 transition-colors px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs">
             Extract Audio
           </Link>
-          <span className="text-slate-600">/</span>
-          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+          <span className="text-slate-400">/</span>
+          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">
             {spoke.h1}
           </span>
         </nav>
 
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs text-slate-300 mb-4 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-medium text-slate-200">
-              1-Second Audio Demuxer
-            </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-slate-400">Zero Server Upload</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-slate-200 text-xs font-medium text-slate-600 mb-4 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>1-Second Audio Demuxer &middot; Zero Server Upload</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
             {spoke.h1}
           </h1>
-          <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
             {spoke.subtitle}
           </p>
         </div>
