@@ -7,10 +7,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const MODIFIED = {
     hubs: new Date("2026-10-30"),
     compress: new Date("2026-10-30"),
-    convert: new Date("2026-10-17"),
-    extract: new Date("2026-10-17"),
-    trim: new Date("2026-10-13"),
-    mute: new Date("2026-10-13"),
+    convert: new Date("2026-10-30"),
+    extract: new Date("2026-10-30"),
+    trim: new Date("2026-10-30"),
+    mute: new Date("2026-10-30"),
     legal: new Date("2026-10-30"),
   };
 
@@ -128,6 +128,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/extract-audio`,
+      lastModified: MODIFIED.hubs,
+    },
+    {
+      url: `${baseUrl}/video-size-calculator`,
       lastModified: MODIFIED.hubs,
     },
     ...compressorEntries,

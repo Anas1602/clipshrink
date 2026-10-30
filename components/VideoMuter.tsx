@@ -4,11 +4,11 @@ import React, { useState, useRef, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import {
+  Upload,
   CheckCircle2,
   AlertCircle,
   FileVideo,
   Download,
-  Sparkles,
   RefreshCw,
   ShieldCheck,
   ArrowRight,
@@ -24,7 +24,7 @@ interface VideoMuterProps {
 
 export default function VideoMuter({
   title = "Instant Video Muter",
-  subtitle = "Remove audio and mute video clips in under 0.1s in browser RAM. Zero quality loss, 100% private.",
+  subtitle = "Remove audio and mute video clips in your browser RAM. Zero video quality loss, 100% private.",
   sourceContext,
 }: VideoMuterProps) {
   void title;
@@ -161,7 +161,7 @@ export default function VideoMuter({
 
       await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-      setStatusMessage("Discarding audio track (instant stream-copy)...");
+      setStatusMessage("Discarding audio track (stream-copy)...");
       setProgress(60);
 
       let succeeded = false;
@@ -254,57 +254,65 @@ export default function VideoMuter({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Main Container Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* Dropzone State */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         {!file ? (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="Upload video file to remove audio"
-            onMouseEnter={() => ensureFFmpegLoaded()}
-            onDragEnter={() => ensureFFmpegLoaded()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleFileDrop}
-            onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
-            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center hover:bg-slate-50/70 focus:outline-hidden">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/*,.mp4,.mov,.webm,.mkv,.avi,.m4v"
-              className="hidden"
-              onChange={(e) =>
-                e.target.files?.[0] && handleFileSelected(e.target.files[0])
-              }
-            />
+          <div className="p-3 sm:p-4">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Upload video file to remove audio"
+              onMouseEnter={() => ensureFFmpegLoaded()}
+              onDragEnter={() => ensureFFmpegLoaded()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              className="border-2 border-dashed border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/20 rounded-xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center focus:outline-hidden">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*,.mp4,.mov,.webm,.mkv,.avi,.m4v"
+                className="hidden"
+                onChange={(e) =>
+                  e.target.files?.[0] && handleFileSelected(e.target.files[0])
+                }
+              />
 
-            <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
-              <VolumeX className="w-7 h-7" />
-            </div>
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
+                <VolumeX className="w-6 h-6" />
+              </div>
 
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
-              Drop your {sourceContext ? sourceContext : "video"} here or{" "}
-              <span className="text-indigo-600 underline underline-offset-4 hover:text-indigo-700">
-                browse files
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-1.5">
+                Drop your {sourceContext ? sourceContext : "video"} here, or
+                select a file
+              </h3>
+
+              <p className="text-xs text-slate-500 font-mono mb-4">
+                Supports MP4, MOV, MKV, WebM &middot; Up to 500MB Desktop /
+                150MB Mobile
+              </p>
+
+              <p className="text-xs text-slate-500 max-w-md leading-relaxed mb-5">
+                Strips all audio tracks via lossless stream-copy. Video pixels
+                remain bit-for-bit identical with zero quality loss.
+              </p>
+
+              <span className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-colors mb-5">
+                <Upload className="w-4 h-4" />
+                Choose Video to Mute
               </span>
-            </h3>
 
-            <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed mb-6">
-              Strips all audio tracks in 0.1 seconds. Video pixels remain
-              bit-for-bit identical with zero quality loss.
-            </p>
-
-            <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>
-                100% In-Browser Stream Copy &middot; Video Quality Untouched
-              </span>
+              <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>
+                  100% In-Browser Stream Copy &middot; Video Quality Untouched
+                </span>
+              </div>
             </div>
           </div>
         ) : (
@@ -358,7 +366,7 @@ export default function VideoMuter({
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                  <span>Engine: -an stream-copy</span>
+                  <span>Local WebAssembly Stream-Copy (-an)</span>
                   <span>Zero Data Uploaded</span>
                 </div>
               </div>
@@ -372,11 +380,11 @@ export default function VideoMuter({
                 </div>
 
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
-                    ⚡ Audio Track Stripped (Lossless Video)
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium mb-2">
+                    Audio Track Stripped · Lossless Video Stream
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
-                    Audio Successfully Removed!
+                    Audio Removed From Video
                   </h3>
                   <p className="mt-1 text-xs text-slate-500 font-mono">
                     Original: {(file.size / (1024 * 1024)).toFixed(2)} MB
@@ -394,7 +402,7 @@ export default function VideoMuter({
                     src={mutedBlobUrl}
                   />
                   <p className="text-[10px] text-emerald-600 mt-2 font-mono flex items-center justify-center gap-1">
-                    <VolumeX className="w-3.5 h-3.5" /> Verified Silent Playback
+                    <VolumeX className="w-3.5 h-3.5" /> Silent Output Verified
                     (0 Audio Streams)
                   </p>
                 </div>
@@ -422,8 +430,8 @@ export default function VideoMuter({
                   onClick={startMuting}
                   disabled={isLoadingFFmpeg}
                   className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
-                  <Sparkles className="w-4 h-4" />
-                  Remove Audio Now (Instant 0.1s)
+                  <VolumeX className="w-4 h-4" />
+                  Remove Audio Track Now
                   <ArrowRight className="w-4 h-4 opacity-75" />
                 </button>
               </div>

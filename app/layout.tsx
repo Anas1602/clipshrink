@@ -84,6 +84,11 @@ export default function RootLayout({
                 Extract Audio
               </Link>
               <Link
+                href="/video-size-calculator"
+                className="hover:text-slate-900 transition-colors">
+                Video Size Calculator
+              </Link>
+              <Link
                 href="/about"
                 className="hover:text-slate-900 transition-colors">
                 About ClipShrink

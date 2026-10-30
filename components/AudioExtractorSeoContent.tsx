@@ -1,17 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import {
-  Zap,
-  HelpCircle,
-  Check,
-  X,
-  Sparkles,
-  Layers,
-  ChevronDown,
-  Headphones,
-  Shield,
-  Laptop,
-} from "lucide-react";
+import { Check, X, ChevronDown } from "lucide-react";
 
 export type ExtractorSlug =
   | "mov-to-mp3"
@@ -32,137 +21,331 @@ interface FaqItem {
   answer: string;
 }
 
+interface ExtractorGuide {
+  title: string;
+  summary: string;
+  sections: { heading: string; text: string }[];
+}
+
+const EXTRACTOR_GUIDES: Record<ExtractorSlug, ExtractorGuide> = {
+  "mov-to-mp3": {
+    title: "Extracting 320kbps MP3 Audio From Apple QuickTime (.MOV) Files",
+    summary:
+      "Turn iPhone recordings, macOS QuickTime screen captures, and camera .MOV clips into compact, high-bitrate MP3 audio files.",
+    sections: [
+      {
+        heading: "Stripping the Heavy MOV Video Track (-vn)",
+        text: "An iPhone or QuickTime .MOV file is over 95% video data. By passing the -vn flag in WebAssembly, ClipShrink immediately discards the video stream in browser RAM and processes only the audio track.",
+      },
+      {
+        heading: "320kbps Studio MP3 vs. 192kbps Standard",
+        text: "Choose 320kbps Constant Bitrate (libmp3lame) to preserve full acoustic range for music, interviews, and podcasts, or select 192kbps for smaller voice memo and lecture files.",
+      },
+      {
+        heading: "Works on Windows, Mac, and iOS Safari",
+        text: "You don't need Apple QuickTime Pro or third-party desktop converters. Drop any .MOV file right into your browser tab to save a universally playable MP3.",
+      },
+    ],
+  },
+  "mp4-to-mp3": {
+    title: "How In-Browser MP4 to MP3 Audio Extraction Works",
+    summary:
+      "Rip voice tracks, webinars, lectures, and music from MP4 videos directly in your browser without uploading files to external servers.",
+    sections: [
+      {
+        heading: "Demuxing AAC Audio to MP3",
+        text: "Standard MP4 videos store audio in AAC format alongside an H.264 video stream. ClipShrink demuxes the container in local memory, drops the video packets, and encodes a universally compatible MP3 file using LAME.",
+      },
+      {
+        heading: "Zero Upload Queue for Large Lectures",
+        text: "Uploading a 350MB 1-hour webinar MP4 to a cloud converter takes minutes on standard Wi-Fi. Because ClipShrink reads the file directly from your local disk into browser RAM, audio extraction begins immediately.",
+      },
+      {
+        heading: "Built-In Audio Player Verification",
+        text: "Once extraction finishes, you can listen to the MP3 track directly inside the inline audio player to verify volume and clarity before downloading.",
+      },
+    ],
+  },
+  "ogg-to-mp3": {
+    title: "Converting OGG Vorbis & Gaming Audio Files to Universal MP3",
+    summary:
+      "OGG is an open-source audio container used by Discord, video game engines, and Linux tools, but Apple devices and hardware players often reject it.",
+    sections: [
+      {
+        heading: "Why iPhones, Car Stereos & Editors Reject .OGG",
+        text: "Apple's native Files app, iTunes/Music, QuickTime, and many hardware MP3 players do not include a native OGG Vorbis decoder. Converting .ogg to .mp3 makes your audio playable on every phone, car stereo, and editing timeline.",
+      },
+      {
+        heading: "Game Assets, Discord Bots & Soundboards",
+        text: "PC games (Minecraft, RPG Maker, Unity, Unreal) and Discord recording bots store voice lines and music as .ogg files. ClipShrink converts them to 320kbps or 192kbps MP3 in under a second.",
+      },
+      {
+        heading: "Lossless WAV Output Option Included",
+        text: "If you are importing game audio or voice tracks into a DAW (FL Studio, Ableton, Logic Pro) for mixing, you can also switch the output selector above to Lossless WAV.",
+      },
+    ],
+  },
+  "webm-to-mp3": {
+    title: "Extracting MP3 Audio From Browser WebM Recordings",
+    summary:
+      "Pull clean MP3 audio from Chrome screen captures, HTML5 WebM videos, and browser-based meeting recordings.",
+    sections: [
+      {
+        heading: "Transcoding WebM Opus / Vorbis Audio to MP3",
+        text: "WebM videos store audio using the Opus or Vorbis codec at 48kHz. Because many transcription tools, podcast hosts, and media players require standard MP3 files, ClipShrink extracts and converts the audio stream in one step.",
+      },
+      {
+        heading: "Ideal for AI Transcription & Meeting Notes",
+        text: "If you recorded a browser meeting or webinar as a 250MB .webm video, extracting a compact 192kbps MP3 shrinks the file by 90% so you can easily feed it into Whisper or transcription tools.",
+      },
+      {
+        heading: "100% Private Local Processing",
+        text: "Confidential internal meetings and voice recordings stay inside your browser's local memory sandbox and are never uploaded anywhere.",
+      },
+    ],
+  },
+  "mp4-to-wav": {
+    title: "Extracting Uncompressed 16-Bit PCM WAV Audio From MP4 Videos",
+    summary:
+      "Professional video editors and DAWs work best with uncompressed WAV audio rather than lossy, frame-paketed MP3 files.",
+    sections: [
+      {
+        heading: "Why Editors Prefer WAV Over MP3 (pcm_s16le)",
+        text: "MP3 is a lossy format that adds tiny silence padding at the start of a track and forces NLEs (Premiere Pro, DaVinci Resolve, Final Cut) to decode compressed frames on the fly during timeline scrubbing. Uncompressed 16-bit Little-Endian PCM WAV aligns sample-accurately on every timeline.",
+      },
+      {
+        heading: "Zero Additional Compression Artifacts",
+        text: "When you plan to apply EQ, noise reduction, compression, or mastering in Audition, Pro Tools, or Logic Pro, exporting to lossless WAV prevents double-compression artifacts.",
+      },
+      {
+        heading: "Fast Local RAM Demuxing",
+        text: "Because PCM WAV requires no heavy psychoacoustic encoding math, extracting a WAV file from an MP4 in WebAssembly is nearly instantaneous.",
+      },
+    ],
+  },
+  "video-to-wav": {
+    title: "Converting Any Video Format (MP4, MOV, MKV, WebM) to Studio WAV",
+    summary:
+      "Extract sample-accurate, uncompressed 16-bit PCM WAV audio from any video container directly in your browser.",
+    sections: [
+      {
+        heading: "Universal Video Input Support",
+        text: "Whether your footage is an OBS Studio .MKV, an iPhone .MOV, a browser .WebM, or a camera .MP4, ClipShrink strips the video stream and writes a standard RIFF WAVE (.wav) audio file.",
+      },
+      {
+        heading: "Ready for DaVinci Resolve, Premiere & DAWs",
+        text: "The exported 16-bit PCM WAV file imports cleanly into DaVinci Resolve, Adobe Premiere Pro, Audacity, Ableton Live, FL Studio, and Pro Tools with zero codec issues.",
+      },
+      {
+        heading: "No Cloud Upload Wait for Uncompressed Audio",
+        text: "Uncompressed WAV files are roughly 10MB per minute of stereo audio. Generating the WAV locally in browser RAM means you don't have to download huge uncompressed files from a slow remote server.",
+      },
+    ],
+  },
+  "quicktime-to-mp3": {
+    title: "Extracting MP3 Audio From QuickTime (.MOV) Recordings",
+    summary:
+      "Turn QuickTime screen recordings and iPhone .MOV videos into compact, universally playable MP3 audio files.",
+    sections: [
+      {
+        heading: "Instant Video Stream Removal",
+        text: "ClipShrink drops the QuickTime video track in memory and encodes only the audio stream into a clean MP3 file.",
+      },
+      {
+        heading: "Up to 320kbps Bitrate",
+        text: "Choose between 320kbps studio MP3, 192kbps standard MP3, or uncompressed WAV right above the dropzone.",
+      },
+      {
+        heading: "100% In-Browser Privacy",
+        text: "Your QuickTime recordings are processed locally on your device with zero cloud uploads.",
+      },
+    ],
+  },
+  default: {
+    title: "How In-Browser Audio Extraction (MP3 & Lossless WAV) Works",
+    summary:
+      "ClipShrink rips audio streams from MP4, MOV, MKV, WebM, and OGG files directly in your browser's local memory using FFmpeg WebAssembly.",
+    sections: [
+      {
+        heading: "Direct Video Stream Stripping (-vn)",
+        text: "Instead of uploading a 300MB video over the internet just to get a 5MB audio file, ClipShrink reads the file locally in your browser tab, discards the video packets, and extracts the audio stream in seconds.",
+      },
+      {
+        heading: "320kbps MP3 or 16-Bit Lossless WAV",
+        text: "Pick 320kbps MP3 for maximum compatibility and music fidelity, 192kbps MP3 for compact voice recordings, or uncompressed 16-bit PCM WAV for video editing and DAWs.",
+      },
+      {
+        heading: "Live Inline Audio Verification",
+        text: "Listen to your extracted audio track right on the page before downloading, with zero watermarks and zero file uploads.",
+      },
+    ],
+  },
+};
+
 const FAQ_DATA: Record<string, FaqItem[]> = {
   "mov-to-mp3": [
     {
-      question: "How do I convert Apple QuickTime MOV to MP3 online?",
+      question: "How do I convert an Apple QuickTime MOV video to MP3?",
       answer:
-        "Drop your .mov video into ClipShrink, select 320kbps Studio Quality or 192kbps Standard, and click Extract. WebAssembly strips the video track and saves a pristine MP3 directly in your browser memory in under 1 second.",
+        "Select 320kbps or 192kbps MP3 above, drop your .mov file into the extractor, and click Extract. ClipShrink discards the video stream in browser RAM and saves a clean MP3 audio file in seconds.",
     },
     {
-      question: "Will extracting MP3 from MOV degrade audio quality?",
+      question: "Will converting MOV to MP3 reduce audio quality?",
       answer:
-        "No. ClipShrink encodes with libmp3lame at up to 320kbps, preserving all high-frequency vocal details, music acoustics, and voice clarity.",
+        "At 320kbps (the maximum bitrate of the MP3 standard), the extracted audio is perceptually indistinguishable from the original QuickTime track. If you need bit-for-bit uncompressed audio for editing, you can also select the WAV Lossless tab above.",
+    },
+    {
+      question:
+        "Can I extract MP3 from iPhone MOV videos directly on my phone?",
+      answer:
+        "Yes. Open this page in Safari on your iPhone, choose a video up to 150MB from your Photos or Files app, and download the extracted MP3 directly to your device.",
     },
   ],
   "mp4-to-mp3": [
     {
-      question: "How to extract audio from an MP4 video file?",
+      question: "How do I extract an MP3 audio track from an MP4 video?",
       answer:
-        "Drop your MP4 into ClipShrink and click 'Extract Audio'. The client-side engine drops the video stream (-vn) and extracts the audio track in 1 second with zero server uploads.",
+        "Drop your MP4 file into the box above, choose 320kbps or 192kbps MP3, and click Extract. Our local WebAssembly engine strips the video track (-vn) and encodes the audio into an MP3 file without uploading your video.",
+    },
+    {
+      question: "How big will the MP3 file be compared to the original MP4?",
+      answer:
+        "At 192kbps, an MP3 is about 1.4MB per minute; at 320kbps, it is about 2.4MB per minute. Extracting MP3 from a 200MB MP4 lecture or music video typically reduces the file size by 90% to 95%.",
     },
     {
       question:
-        "Is there a file size limit for extracting audio from long MP4 videos?",
+        "Is there a limit on video duration when converting MP4 to MP3?",
       answer:
-        "ClipShrink supports files up to 500MB on desktop and 150MB on mobile. You can extract audio from multi-hour lectures, webinars, and podcasts without hitting paywalls.",
+        "There is no duration cap—you can extract audio from 2-hour lectures, podcasts, and webinars as long as the source MP4 file is under 500MB on desktop (150MB on mobile).",
     },
   ],
   "ogg-to-mp3": [
     {
-      question: "What is OGG audio and how do I convert it to MP3?",
+      question:
+        "What is an OGG file and why won't it play on my iPhone or Mac?",
       answer:
-        "OGG Vorbis is the open-source audio container used by Discord, Spotify, and gaming voice systems. Many car stereos and media players cannot open OGG. ClipShrink converts OGG to universal MP3 in browser RAM instantly.",
+        "OGG Vorbis is an open-source audio format heavily used by Discord, Spotify, and PC games. Apple devices (iOS and macOS QuickTime/Music) and many car stereos do not support .ogg natively. Converting to MP3 makes the file playable everywhere.",
+    },
+    {
+      question: "How do I convert Discord or game .OGG audio files to MP3?",
+      answer:
+        "Drop your .ogg file into the extractor above, pick 320kbps or 192kbps MP3, and click Extract. The conversion finishes in under a second locally in your browser.",
+    },
+    {
+      question: "Can I convert OGG to uncompressed WAV instead of MP3?",
+      answer:
+        "Yes—simply click the 'WAV · Lossless' tab right above the dropzone before converting.",
     },
   ],
   "webm-to-mp3": [
     {
-      question: "How to convert WebM screen recording audio to MP3?",
+      question:
+        "How do I extract MP3 audio from a WebM video or screen recording?",
       answer:
-        "Browser screen recordings and HTML5 videos are typically saved in WebM with Opus audio. ClipShrink extracts and transcodes the Opus audio into a universally compatible MP3 file in seconds.",
+        "Drop your .webm file into the box above and click Extract. ClipShrink strips the VP8/VP9 video stream and converts the internal Opus or Vorbis audio track into a standard MP3 file.",
+    },
+    {
+      question: "Why convert a WebM meeting recording to MP3?",
+      answer:
+        "Converting a large browser screen recording (.webm) into an audio-only MP3 shrinks the file by ~90%, making it easy to archive, listen to on your phone, or upload to AI transcription tools.",
+    },
+    {
+      question: "Are my WebM recordings uploaded to a cloud server?",
+      answer:
+        "Never. Your WebM file is processed 100% locally inside your browser's memory.",
     },
   ],
   "mp4-to-wav": [
     {
       question: "Why convert MP4 to WAV instead of MP3?",
       answer:
-        "WAV is uncompressed, lossless PCM audio. Professional music producers and video editors (DaVinci Resolve, Premiere Pro, Pro Tools) prefer WAV because it avoids compression artifacts during mixing and mastering.",
+        "WAV (pcm_s16le) is uncompressed, lossless audio. Video editors (Premiere Pro, DaVinci Resolve, Final Cut) and DAWs (Logic, Pro Tools, Ableton, FL Studio) scrub faster with WAV and avoid the generation loss and frame-padding issues caused by lossy MP3 files.",
+    },
+    {
+      question:
+        "What bit depth and format does ClipShrink use for WAV exports?",
+      answer:
+        "ClipShrink exports standard 16-bit Little-Endian uncompressed PCM WAV audio, matching broadcast and studio timeline standards.",
+    },
+    {
+      question: "How large is an extracted WAV audio file?",
+      answer:
+        "Uncompressed stereo 16-bit WAV audio is approximately 10MB per minute of audio.",
     },
   ],
   "video-to-wav": [
     {
-      question: "How do I extract studio-quality uncompressed WAV from video?",
+      question: "Which video formats can I convert to WAV?",
       answer:
-        "Select the 'WAV Lossless' preset on ClipShrink and drop your video. The engine exports a 16-bit 44.1kHz uncompressed PCM WAV track identical to the source audio.",
+        "You can drop MP4, QuickTime MOV, OBS Studio MKV, WebM, AVI, or M4V files into the extractor to rip a lossless 16-bit PCM WAV audio track.",
     },
-  ],
-  "quicktime-to-mp3": [
     {
-      question: "How to extract audio from Mac QuickTime screen recordings?",
+      question: "How fast is in-browser Video to WAV extraction?",
       answer:
-        "Apple QuickTime saves screen recordings as .mov with linear PCM or AAC audio. ClipShrink extracts the audio track into a compact, shareable MP3 file directly in Safari or Chrome without installing third-party Mac apps.",
+        "Because uncompressed PCM WAV does not require complex audio compression math, extracting a WAV track in local browser RAM usually takes less than 1 second.",
+    },
+    {
+      question: "Does ClipShrink watermark or limit WAV exports?",
+      answer:
+        "No. All WAV and MP3 exports are 100% free, unbranded, and processed locally on your device.",
     },
   ],
   default: [
     {
-      question: "How does ClipShrink extract audio in under 1 second?",
+      question:
+        "How does ClipShrink extract audio from video without uploading the file?",
       answer:
-        "Unlike cloud converters that make you upload a 200MB video over slow Wi-Fi to a remote server, ClipShrink compiles FFmpeg into WebAssembly. It runs locally on your computer CPU and discards the video stream (-vn) in browser RAM without upload wait times.",
+        "ClipShrink runs a WebAssembly build of FFmpeg inside your browser tab. When you select a video, it loads into your computer's local RAM, strips the video stream (-vn), and encodes a 320kbps MP3 or 16-bit WAV file right on your device.",
     },
     {
-      question: "How is ClipShrink better than 123apps (audio-extractor.net)?",
+      question: "Should I choose 320kbps MP3, 192kbps MP3, or Lossless WAV?",
       answer:
-        "123apps forces you to upload your personal video to their remote servers and covers the screen with intrusive display ads. ClipShrink is 100% ad-free, processes your files locally in RAM with complete privacy, and includes a live inline player to verify audio before downloading.",
+        "Choose 320kbps MP3 for music and high-quality podcasts, 192kbps MP3 for smaller voice memos and lectures, or Lossless WAV if you plan to edit or mix the audio in Premiere Pro, DaVinci Resolve, or a DAW.",
     },
     {
       question: "Do my video or audio files ever touch an external server?",
       answer:
-        "Never. Video files are loaded into your browser's private memory and processed locally. Zero data is transmitted, stored, or inspected by third parties.",
+        "Never. Zero bytes of your media files are uploaded, stored, or transmitted over the internet.",
     },
   ],
 };
 
-const COMMON_USE_CASES = [
-  {
-    title: "Podcasts & Lectures",
-    desc: "Rip clean MP3 audio tracks from recorded webinars, lectures, and interviews to listen on the go.",
-  },
-  {
-    title: "Video Editor Workflows",
-    desc: "Extract lossless uncompressed 16-bit WAV audio for editing in Premiere Pro, DaVinci, or FL Studio.",
-  },
-  {
-    title: "Music & Beat Sample Ripping",
-    desc: "Pull high-fidelity 320kbps audio samples from video clips without background compression artifacts.",
-  },
-  {
-    title: "Voice Memo Conversion",
-    desc: "Convert voice memos and phone recordings into universal MP3 format compatible with every device.",
-  },
-];
-
 const COMPARISON_ROWS = [
   {
     feature: "Extraction Speed",
-    cloud: "45–90s (Slow upload + server queue)",
-    clipshrink: "0.8–2.0s (Local RAM processing)",
-  },
-  {
-    feature: "Ad Experience",
-    cloud: "Intrusive display ads & fake download buttons",
-    clipshrink: "100% Clean, fast, and ad-free interface",
+    cloud: "45–90s (Slow video upload + server queue)",
+    clipshrink: "1–2 seconds (Local RAM demuxing)",
   },
   {
     feature: "File Privacy",
-    cloud: "Uploaded & stored on remote servers",
-    clipshrink: "100% In-Browser RAM (Files never leave device)",
+    cloud: "Uploaded & stored on remote third-party servers",
+    clipshrink: "100% In-Browser RAM (Files never leave your device)",
+  },
+  {
+    feature: "Audio Bitrate Options",
+    cloud: "Often capped at 128kbps on free tiers",
+    clipshrink: "Full 320kbps MP3, 192kbps MP3 & 16-Bit Lossless WAV",
   },
   {
     feature: "Audio Verification",
-    cloud: "Blind download (Must open in VLC to check)",
-    clipshrink: "Live inline audio player to verify quality before download",
+    cloud: "Blind download",
+    clipshrink: "Built-in audio player to preview before saving",
   },
   {
-    feature: "Studio Quality (320k / WAV)",
-    cloud: "Often paywalled or capped at 128kbps",
-    clipshrink: "Full 320kbps MP3 and uncompressed WAV included free",
+    feature: "Watermarks & Quotas",
+    cloud: "Daily file limits or account walls",
+    clipshrink: "No signup, zero watermarks, unlimited free use",
   },
 ];
 
 export default function AudioExtractorSeoContent({
   slug = "default",
 }: AudioExtractorSeoContentProps) {
-  const faqs = FAQ_DATA[slug] || FAQ_DATA.default;
+  const safeSlug = (
+    slug in EXTRACTOR_GUIDES ? slug : "default"
+  ) as ExtractorSlug;
+  const guide = EXTRACTOR_GUIDES[safeSlug];
+  const faqs = FAQ_DATA[safeSlug] || FAQ_DATA.default;
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -179,113 +362,107 @@ export default function AudioExtractorSeoContent({
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-20 space-y-20 text-slate-700">
-      {/* FAQ Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Privacy Architecture Diagram */}
-      <section aria-labelledby="privacy-flow-heading" className="text-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
-          <Shield className="w-3.5 h-3.5" />
-          End-to-End Local Architecture
-        </div>
-        <h2
-          id="privacy-flow-heading"
-          className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-          Extracted on Your Device, End to End
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-10">
-          Your video never uploads to an external server. Browser RAM extracts
-          the audio track instantly.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3">
-              <Laptop className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm mb-1">
-              Your Device
-            </h3>
-            <p className="text-xs text-slate-400 font-mono">
-              Original Video File
-            </p>
-          </div>
-
-          <div className="bg-white border border-indigo-200 p-6 rounded-2xl shadow-xs relative">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3">
-              <Zap className="w-6 h-6 text-amber-500" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm mb-1">
-              In-Browser RAM
-            </h3>
-            <p className="text-xs text-indigo-600 font-mono font-medium">
-              WASM Audio Demuxer (1s)
-            </p>
-          </div>
-
-          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3">
-              <Headphones className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm mb-1">
-              Instant Download
-            </h3>
-            <p className="text-xs text-slate-400 font-mono">
-              320k MP3 or Lossless WAV
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Common Use Cases */}
-      <section aria-labelledby="use-cases-heading">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            Everyday Applications
-          </div>
+      {/* Dynamic Format-Specific Guide */}
+      <section aria-labelledby="extractor-guide-heading" className="space-y-6">
+        <div className="text-center mb-8">
           <h2
-            id="use-cases-heading"
+            id="extractor-guide-heading"
             className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Why Extract Audio from Video?
+            {guide.title}
           </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
+            {guide.summary}
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {COMMON_USE_CASES.map((uc, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {guide.sections.map((section, idx) => (
             <div
-              key={i}
-              className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
-              <div className="w-2 h-2 rounded-full bg-indigo-600 mb-3" />
-              <h3 className="font-semibold text-slate-900 text-sm mb-1.5">
-                {uc.title}
+              key={idx}
+              className="bg-white border border-slate-200 p-6 rounded-2xl shadow-xs space-y-2.5">
+              <h3 className="font-bold text-slate-900 text-base tracking-tight">
+                {section.heading}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                {uc.desc}
+                {section.text}
               </p>
             </div>
           ))}
         </div>
       </section>
 
+      {/* 3-Step Workflow (Unified Horizontal Strip) */}
+      <section aria-labelledby="how-extract-works-heading">
+        <div className="text-center mb-8">
+          <h2
+            id="how-extract-works-heading"
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            How to Extract Audio From Video Online
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-500">
+            Rip MP3 or lossless WAV audio in three steps directly in your
+            browser.
+          </p>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-xs grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200 overflow-hidden">
+          <div className="p-6">
+            <div className="text-xs font-mono font-bold text-indigo-600 mb-2">
+              STEP 01
+            </div>
+            <h3 className="font-bold text-slate-900 text-base mb-1.5">
+              Choose Audio Format
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Select 320kbps MP3, 192kbps MP3, or uncompressed 16-bit PCM WAV
+              above the dropzone.
+            </p>
+          </div>
+
+          <div className="p-6">
+            <div className="text-xs font-mono font-bold text-indigo-600 mb-2">
+              STEP 02
+            </div>
+            <h3 className="font-bold text-slate-900 text-base mb-1.5">
+              Drop Your Video File
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Select your MP4, MOV, MKV, WebM, or OGG file. Our WebAssembly
+              engine strips the video track in local RAM.
+            </p>
+          </div>
+
+          <div className="p-6">
+            <div className="text-xs font-mono font-bold text-indigo-600 mb-2">
+              STEP 03
+            </div>
+            <h3 className="font-bold text-slate-900 text-base mb-1.5">
+              Preview & Download
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Listen to the extracted track in the inline player and download
+              your audio file immediately.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Comparison Matrix */}
       <section aria-labelledby="comparison-heading">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
-            <Layers className="w-3.5 h-3.5" />
-            Architectural Comparison
-          </div>
           <h2
             id="comparison-heading"
             className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            ClipShrink vs. Legacy Cloud Extractors
+            ClipShrink vs. Cloud Audio Extractors
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
-            Why client-side in-browser audio extraction is faster, cleaner, and
-            strictly safer.
+            Why ripping audio tracks locally in browser RAM is faster and safer
+            than uploading large video files to remote servers.
           </p>
         </div>
 
@@ -298,10 +475,10 @@ export default function AudioExtractorSeoContent({
                     Feature
                   </th>
                   <th className="py-4 px-5 text-slate-600 font-semibold uppercase tracking-wider text-[11px] w-1/3">
-                    Traditional Cloud Extractors
+                    Cloud Audio Extractors
                   </th>
                   <th className="py-4 px-5 text-indigo-700 font-bold uppercase tracking-wider text-[11px] w-1/3 bg-indigo-50/50 border-l border-r border-indigo-100">
-                    ClipShrink In-Browser RAM
+                    ClipShrink (In-Browser)
                   </th>
                 </tr>
               </thead>
@@ -333,15 +510,11 @@ export default function AudioExtractorSeoContent({
 
       {/* Accordion FAQs */}
       <section aria-labelledby="faq-heading">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-3">
-            <HelpCircle className="w-3.5 h-3.5" />
-            Frequently Asked Questions
-          </div>
+        <div className="text-center mb-8">
           <h2
             id="faq-heading"
             className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Everything You Need to Know
+            Frequently Asked Questions
           </h2>
         </div>
 
@@ -369,7 +542,7 @@ export default function AudioExtractorSeoContent({
             Dedicated Audio Extraction Tools
           </h3>
           <span className="text-[11px] text-slate-400 font-mono">
-            Up to 320kbps Studio MP3
+            320kbps MP3 & Lossless WAV
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">

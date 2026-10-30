@@ -10,7 +10,6 @@ import {
   AlertCircle,
   FileVideo,
   Download,
-  Sparkles,
   RefreshCw,
   ShieldCheck,
   ArrowRight,
@@ -31,7 +30,7 @@ export default function VideoConverter({
   defaultSourceExt,
   targetFormat = "mp4",
   title = "Instant Video Converter",
-  description = "Convert video and audio containers in under 1 second using local WebAssembly stream-copy.",
+  description = "Convert video and audio containers in your browser using local WebAssembly stream-copy.",
 }: VideoConverterProps) {
   void title;
   const [loaded, setLoaded] = useState(false);
@@ -310,60 +309,70 @@ export default function VideoConverter({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Main Container Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        {/* Dropzone State */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         {!file ? (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="Upload file for conversion"
-            onMouseEnter={() => ensureFFmpegLoaded()}
-            onDragEnter={() => ensureFFmpegLoaded()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleFileDrop}
-            onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
-            className="p-8 sm:p-14 text-center cursor-pointer transition-all flex flex-col items-center justify-center hover:bg-slate-50/70 focus:outline-hidden">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={
-                defaultSourceExt
-                  ? `.${defaultSourceExt},video/*,audio/*`
-                  : "video/*,audio/*,.mkv,.mov,.webm,.mp4,.ts,.m4v,.hevc"
-              }
-              className="hidden"
-              onChange={(e) =>
-                e.target.files?.[0] && handleFileSelected(e.target.files[0])
-              }
-            />
+          <div className="p-3 sm:p-4">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Upload file for conversion"
+              onMouseEnter={() => ensureFFmpegLoaded()}
+              onDragEnter={() => ensureFFmpegLoaded()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              className="border-2 border-dashed border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/20 rounded-xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center focus:outline-hidden">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={
+                  defaultSourceExt
+                    ? `.${defaultSourceExt},video/*,audio/*`
+                    : "video/*,audio/*,.mkv,.mov,.webm,.mp4,.ts,.m4v,.hevc,.opus,.gif"
+                }
+                className="hidden"
+                onChange={(e) =>
+                  e.target.files?.[0] && handleFileSelected(e.target.files[0])
+                }
+              />
 
-            <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
-              <Upload className="w-7 h-7" />
-            </div>
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-4 text-indigo-600 shadow-xs">
+                <Upload className="w-6 h-6" />
+              </div>
 
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
-              Drop your{" "}
-              {defaultSourceExt ? defaultSourceExt.toUpperCase() : "video"} file
-              here or{" "}
-              <span className="text-indigo-600 underline underline-offset-4 hover:text-indigo-700">
-                browse files
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mb-1.5">
+                Drop your{" "}
+                {defaultSourceExt ? defaultSourceExt.toUpperCase() : "video"}{" "}
+                file here, or select a file
+              </h3>
+
+              <p className="text-xs text-slate-500 font-mono mb-4">
+                {defaultSourceExt
+                  ? `Converts .${defaultSourceExt.toUpperCase()} to .${targetFormat.toUpperCase()} · Up to 500MB Desktop / 150MB Mobile`
+                  : "Supports MKV, MOV, HEVC, WebM, TS, M4V, GIF · Up to 500MB"}
+              </p>
+
+              <p className="text-xs text-slate-500 max-w-md leading-relaxed mb-5">
+                {description}
+              </p>
+
+              <span className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-colors mb-5">
+                <Upload className="w-4 h-4" />
+                Choose{" "}
+                {defaultSourceExt ? `${defaultSourceExt.toUpperCase()} ` : ""}
+                File
               </span>
-            </h3>
 
-            <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed mb-6">
-              {description}
-            </p>
-
-            <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>100% In-Browser Stream Copy &middot; Zero Uploads</span>
+              <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>100% In-Browser Processing &middot; Zero Uploads</span>
+              </div>
             </div>
           </div>
         ) : (
@@ -382,7 +391,7 @@ export default function VideoConverter({
                     <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                     <span>•</span>
                     <span className="text-indigo-600 font-semibold uppercase">
-                      Target: .{targetFormat}
+                      Output: .{targetFormat}
                     </span>
                   </div>
                 </div>
@@ -417,7 +426,7 @@ export default function VideoConverter({
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                  <span>Engine: WebAssembly StreamCopy</span>
+                  <span>Local WebAssembly Remux / Transcode</span>
                   <span>Zero Server Uploads</span>
                 </div>
               </div>
@@ -431,19 +440,19 @@ export default function VideoConverter({
                 </div>
 
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium mb-2">
                     {processingMode === "stream-copy"
-                      ? "⚡ Lossless Stream-Copy (No Re-encoding)"
+                      ? "Lossless Stream-Copy (No Re-encoding)"
                       : processingMode === "audio-transcode"
-                        ? "⚡ Video Copied, Audio Converted to AAC"
-                        : "🎬 Converted to Universal H.264"}
+                        ? "Video Stream Copied · Audio Converted to AAC"
+                        : "Converted to Universal H.264"}
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
-                    File Successfully Converted!
+                    File Converted to .{targetFormat.toUpperCase()}
                   </h3>
                   <p className="mt-1 text-xs text-slate-500 font-mono">
-                    Output: {(outputFileSize / (1024 * 1024)).toFixed(2)} MB
-                    &middot; Format: .{targetFormat.toUpperCase()}
+                    Output Size: {(outputFileSize / (1024 * 1024)).toFixed(2)}{" "}
+                    MB &middot; Format: .{targetFormat.toUpperCase()}
                   </p>
                   {processingMode === "transcode" && sourceCodec && (
                     <p className="mt-2 text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
@@ -451,8 +460,8 @@ export default function VideoConverter({
                       {sourceCodec === "hevc"
                         ? "HEVC (H.265)"
                         : sourceCodec.toUpperCase()}{" "}
-                      to H.264 for universal compatibility on Windows, Android,
-                      and Discord.
+                      to H.264 for universal playback on Windows, Android, and
+                      Discord.
                     </p>
                   )}
                 </div>
@@ -474,8 +483,8 @@ export default function VideoConverter({
                     />
                   )}
                   <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center justify-center gap-1">
-                    <Play className="w-3 h-3 text-indigo-600" /> Verified
-                    Playable in Browser RAM
+                    <Play className="w-3 h-3 text-indigo-600" /> Preview Output
+                    Before Downloading
                   </p>
                 </div>
 
@@ -503,8 +512,7 @@ export default function VideoConverter({
                   onClick={startConversion}
                   disabled={isLoadingFFmpeg}
                   className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
-                  <Sparkles className="w-4 h-4" />
-                  Convert to .{targetFormat.toUpperCase()} (Instant In-Browser)
+                  Convert to .{targetFormat.toUpperCase()} Now
                   <ArrowRight className="w-4 h-4 opacity-75" />
                 </button>
               </div>

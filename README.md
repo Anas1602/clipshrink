@@ -1,132 +1,92 @@
-# ⚡ In-Browser Video Compressor (Next.js & WebAssembly)
+# ClipShrink — Local In-Browser Media Suite (Next.js & FFmpeg.wasm)
 
-> A production-grade, 100% private client-side video compressor built with **Next.js**, **React 19**, **Tailwind CSS**, and **FFmpeg WebAssembly**. Shrinks MP4, Apple QuickTime MOV, and WebM files directly in the browser with zero server uploads and zero watermarks.
+ClipShrink is a client-side video and audio processing web application built with **Next.js**, **React 19**, **Tailwind CSS**, and **FFmpeg WebAssembly**. It compresses, remuxes, trims, mutes, and extracts audio from MP4, QuickTime MOV, Matroska MKV, and WebM files directly in browser RAM with zero server uploads and zero watermarks.
 
-[![Live Production Tool](https://img.shields.io/badge/Live%20Production%20App-ClipShrink.com-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://clipshrink.com)
-[![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
-[![WebAssembly](https://img.shields.io/badge/WebAssembly-FFmpeg-654FF0?style=for-the-badge&logo=webassembly&logoColor=white)](https://ffmpegwasm.netlify.app)
-[![License: MIT](https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge)](LICENSE)
+**Live Application:** [https://clipshrink.com](https://clipshrink.com)
 
 ---
 
-## 🌐 Live Production Application
+## Core Utilities
 
-The live production utility is freely available with zero signup or queues:  
-👉 **[https://clipshrink.com](https://clipshrink.com)**
+All tools run locally inside the browser's WebAssembly memory sandbox:
 
-### Specialized Platform Tools:
-* 🎮 **[8MB Video Compressor for Discord](https://clipshrink.com/video/compress-for-discord-8mb)** — Automatic dynamic VBR calculation targeting ~7.2MB to guarantee successful uploads on free Discord accounts.
-* 💬 **[WhatsApp 16MB Video Reducer](https://clipshrink.com/video/compress-for-whatsapp)** — Re-encodes clips with web-optimized faststart metadata for direct sending on WhatsApp Web and mobile.
-* 📧 **[Gmail 25MB Attachment Compressor](https://clipshrink.com/video/compress-for-gmail-25mb)** — Shrinks presentation clips under 25MB to bypass Google Drive link conversions.
-* 💼 **[Compress Video for Outlook (20MB Limit)](https://clipshrink.com/video/compress-video-for-outlook)** — Tailored for Microsoft Exchange attachment constraints with legible text rendering.
-* 📱 **[Compress Video on iPhone Free](https://clipshrink.com/video/compress-video-on-iphone)** — In-browser Safari compression for heavy iOS camera roll recordings without installing apps.
-* 🐦 **[Compress Video for Twitter / X](https://clipshrink.com/video/compress-video-for-twitter)** — Web-streaming optimization under 25MB and 512MB limits.
-* 🍎 **[Convert & Compress iPhone MOV for Discord](https://clipshrink.com/video/compress-mov-for-discord)** — Converts Apple QuickTime HEVC files into web-friendly H.264 MP4 format.
+- **[Video Compressor](https://clipshrink.com)** — Target-size video compression for [Discord (8MB, 10MB & 20MB)](https://clipshrink.com/video/compress-for-discord-8mb), [WhatsApp (16MB)](https://clipshrink.com/video/compress-for-whatsapp), [Gmail (25MB)](https://clipshrink.com/video/compress-for-gmail-25mb), [Microsoft Outlook (20MB)](https://clipshrink.com/video/compress-video-for-outlook), [Slack (10MB)](https://clipshrink.com/video/compress-video-for-slack), and [iPhone Safari](https://clipshrink.com/video/compress-video-on-iphone).
+- **[Instant Video Converter](https://clipshrink.com/convert)** — Container remuxing and codec conversion including [OBS MKV to MP4](https://clipshrink.com/convert/mkv-to-mp4), [iPhone HEVC to MP4](https://clipshrink.com/convert/hevc-to-mp4), [QuickTime MOV to MP4](https://clipshrink.com/convert/mov-to-mp4), [WebM to MP4](https://clipshrink.com/convert/webm-to-mp4), and [TS to MP4](https://clipshrink.com/convert/ts-to-mp4).
+- **[Lossless Video Trimmer](https://clipshrink.com/trim-video)** — Stream-copy video cutting (`-c copy`) for [MP4](https://clipshrink.com/trim-video/trim-mp4), [OBS MKV](https://clipshrink.com/trim-video/cut-mkv), [QuickTime MOV](https://clipshrink.com/trim-video/trim-mov), and [Discord clips](https://clipshrink.com/trim-video/cut-video-for-discord).
+- **[Remove Audio from Video](https://clipshrink.com/remove-audio)** — Lossless audio track stripping (`-an -c:v copy`) for [iPhone videos](https://clipshrink.com/remove-audio/iphone-video), [MP4](https://clipshrink.com/remove-audio/mp4), [MOV](https://clipshrink.com/remove-audio/mov), and [Instagram Reels](https://clipshrink.com/remove-audio/instagram-reels).
+- **[Audio Extractor](https://clipshrink.com/extract-audio)** — Demuxes and encodes 320kbps / 192kbps MP3 or 16-bit lossless PCM WAV from [MP4](https://clipshrink.com/extract-audio/mp4-to-mp3), [MOV](https://clipshrink.com/extract-audio/mov-to-mp3), [OGG](https://clipshrink.com/extract-audio/ogg-to-mp3), and [WebM](https://clipshrink.com/extract-audio/webm-to-mp3).
+- **[Video File Size & Bitrate Calculator](https://clipshrink.com/video-size-calculator)** — Interactive bitrate and duration calculator for 8MB, 10MB, 16MB, 20MB, 25MB, and 50MB upload limits.
 
 ---
 
-## 🏗️ Architecture: Zero-Server Processing
-
-Traditional cloud compressors force users to upload 100MB+ personal video files to remote servers, wait in processing queues, and download watermarked results. 
-
-**ClipShrink operates 100% inside the client's web browser memory sandbox:**
+## Architecture & Engineering Notes
 
 ```text
-[User Selects Video (.mp4, .mov, .webm)]
-                  │
-                  ▼
-   [Local Browser RAM Memory Sandbox]  ◄─── (0 bytes sent to external cloud servers)
-                  │
-                  ▼
- [Dynamic Target Bitrate Calculation]  ◄─── Bitrate = (Target MB × 8192) / Duration
-                  │
-                  ▼
- [FFmpeg WebAssembly Virtual Pipeline] ◄─── Multi-thread CPU re-encoding
-                  │
-                  ▼
-     [Local MP4 Blob Generation]       ◄─── Instant download with '+faststart' atom
+[Local File Input (.mp4, .mov, .mkv, .webm)]
+                     │
+                     ▼
+   [Browser Memory Sandbox (Virtual FS)]  ──► 0 bytes sent over network
+                     │
+                     ▼
+       [FFmpeg Header Probe (lib/probeMedia.ts)]
+       ├── Reads true container duration (fixes WebM Infinity & HEVC probe failures)
+       ├── Detects video codec & pixel format (8-bit yuv420p vs 10-bit HDR)
+       └── Plans execution: Lossless Stream-Copy (-c copy) vs H.264 Transcode
+                     │
+                     ▼
+      [WebAssembly Execution Pipeline]
+       ├── Multi-Threaded Core (/ffmpeg-mt/) when crossOriginIsolated is available
+       └── Single-Threaded Fallback (/ffmpeg/) on iOS Safari & restricted contexts
+                     │
+                     ▼
+    [Local Blob URL + Inline Preview Player] ──► Instant download (+faststart)
 ```
 
----
+### Key Technical Decisions
 
-## ✨ Technical Highlights
-
-* **100% Client-Side Privacy:** Video frames are decoded and re-encoded locally in browser memory. Personal gaming clips and work recordings never touch third-party servers.
-* **Self-Hosted WASM Core:** Bypasses third-party CDN rate-limiting (`unpkg.com`) by serving WebAssembly binaries directly from local edge-cached storage (`/public/ffmpeg/`).
-* **Hardware Heap Safeguards:** Early memory checks prevent WebAssembly heap exhaustion (`Out of Memory`) crashes on iOS Safari and mobile devices.
-* **Dynamic VBR Bitrate Calculation:** Automatically calculates the exact video bitrate based on media duration:
-  `Video Bitrate (kbps) = ((Target MB × 8192) / Duration) - 96`
-* **High-Velocity Encoding Pipeline:** Uses `-preset ultrafast`, `-sws_flags fast_bilinear`, 720p resolution clamping, and 30 FPS frame-rate caps to achieve maximum in-browser performance.
+1. **Reliable Media Probing (`lib/probeMedia.ts`):** Relying on an HTML `<video>` element to read metadata fails on Windows Chrome when a user drops an iPhone HEVC `.mov` file, and reports `Infinity` duration on `MediaRecorder` `.webm` captures. ClipShrink probes the container header directly via FFmpeg's log output to extract exact duration, video codec, pixel format (`yuv420p` vs `yuv420p10le`), and audio codec before deciding whether to stream-copy or transcode.
+2. **Smart Remux vs. Transcode Planning:** Copying an HEVC or VP9 stream into an `.mp4` wrapper (`-c copy`) succeeds at the container level but produces a file that still fails in Windows Media Player, Discord, or WhatsApp. ClipShrink only uses `-c copy` when the video stream is verified 8-bit `h264`, transcoding audio-only (`-c:v copy -c:a aac`) when PCM/Opus audio is detected, and falling back to `libx264` when video transcoding is required.
+3. **Target-Size Bitrate Budgeting:** Rather than using arbitrary CRF values that can overshoot platform upload ceilings, the compressor calculates a target bitrate budget from the probed duration (`(targetMB * 8192) / durationSec`), reserves audio bandwidth, and automatically runs a second pass at `0.85x` bitrate if high-motion footage exceeds the byte ceiling.
+4. **Self-Hosted WASM Cores:** Both single-threaded (`/public/ffmpeg/`) and multi-threaded (`/public/ffmpeg-mt/`) WebAssembly binaries are served from same-origin static storage to avoid third-party CDN failures and CORS worker restrictions.
 
 ---
 
-## 🛠️ Core FFmpeg WASM Execution Pipeline
-
-```typescript
-// Optimized WebAssembly command parameters
-await ffmpeg.exec([
-  "-i", inputFileName,
-  "-b:v", `${videoBitrateK}k`,
-  "-maxrate", `${Math.floor(videoBitrateK * 1.12)}k`,
-  "-bufsize", `${Math.floor(videoBitrateK * 1.4)}k`,
-  "-vf", "scale=-2:min(720\\,ih)", // Clamp resolution to 720p HD max
-  "-sws_flags", "fast_bilinear",   // Fast bilinear scaling for 4K downsampling
-  "-r", "30",                      // Cap at 30 FPS
-  "-c:v", "libx264",
-  "-preset", "ultrafast",          // Velocity-tuned software encoder
-  "-tune", "fastdecode",
-  "-c:a", "aac",
-  "-b:a", "96k",                   // Clean stereo audio bandwidth
-  "-movflags", "+faststart",       // Streamable MP4 header placement
-  "-y", outputFileName,
-]);
-```
-
----
-
-## 💻 Local Development Setup
+## Local Development
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/Anas1602/clipshrink.git
-cd in-browser-video-compressor-wasm
+cd clipshrink
 ```
 
 ### 2. Install dependencies
+
 ```bash
 npm install
 ```
 
-### 3. Setup self-hosted WASM binaries
-```bash
-mkdir -p public/ffmpeg
-cp node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.js public/ffmpeg/
-cp node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.wasm public/ffmpeg/
-```
+### 3. Run the development server
 
-### 4. Run development server
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
 ---
 
-## 🌐 Browser Compatibility
+## Browser Support
 
-| Browser | Supported | Engine |
-| :--- | :---: | :--- |
-| **Google Chrome** | ✅ Yes | V8 WebAssembly |
-| **Microsoft Edge** | ✅ Yes | Chromium WebAssembly |
-| **Mozilla Firefox** | ✅ Yes | SpiderMonkey WASM |
-| **Apple Safari (macOS)**| ✅ Yes | JavaScriptCore WASM |
-| **Mobile Safari (iOS)** | ✅ Yes | Optimized with 150MB heap limit |
+| Browser                  | Supported | Execution Mode                            |
+| :----------------------- | :-------- | :---------------------------------------- |
+| **Google Chrome / Edge** | Yes       | Multi-threaded / Single-threaded WASM     |
+| **Mozilla Firefox**      | Yes       | Multi-threaded / Single-threaded WASM     |
+| **Apple Safari (macOS)** | Yes       | JavaScriptCore WASM                       |
+| **Mobile Safari (iOS)**  | Yes       | Single-threaded WASM (150MB memory guard) |
 
 ---
 
-## 📄 License
+## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-Maintained and operated by the **[ClipShrink](https://clipshrink.com)** team.
+Distributed under the MIT License.

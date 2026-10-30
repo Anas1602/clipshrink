@@ -52,10 +52,10 @@ const TRIMMER_SPOKES: Record<string, TrimmerSpokeData> = {
     slug: "cut-video-for-discord",
     sourceExt: "mp4",
     sourceContext: "Discord",
-    title: "Cut Video for Discord Free (Fit 8MB/10MB Limits) — ClipShrink",
+    title: "Cut Video for Discord Free (Fit 8MB, 10MB & 20MB Limits)",
     h1: "Cut Video for Discord",
     subtitle:
-      "Trim highlight moments to shrink clips under Discord's 8MB and 10MB limits without degrading 60fps smoothness.",
+      "Trim highlight moments to shrink clips under Discord's 8MB, 10MB, and 20MB limits without losing 60fps smoothness.",
     description:
       "Cut videos for Discord online for free. Trim gaming clips in under 0.1 seconds to easily bypass chat upload limits.",
   },
