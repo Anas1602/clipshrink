@@ -40,3 +40,53 @@ All tools run locally inside the browser's WebAssembly memory sandbox:
                      │
                      ▼
     [Local Blob URL + Inline Preview Player] ──► Instant download (+faststart)
+```
+
+### Key Technical Decisions
+
+1. **Reliable Media Probing (`lib/probeMedia.ts`):** Relying on an HTML `<video>` element to read metadata fails on Windows Chrome when a user drops an iPhone HEVC `.mov` file, and reports `Infinity` duration on `MediaRecorder` `.webm` captures. ClipShrink probes the container header directly via FFmpeg's log output to extract exact duration, video codec, pixel format (`yuv420p` vs `yuv420p10le`), and audio codec before deciding whether to stream-copy or transcode.
+2. **Smart Remux vs. Transcode Planning:** Copying an HEVC or VP9 stream into an `.mp4` wrapper (`-c copy`) succeeds at the container level but produces a file that still fails in Windows Media Player, Discord, or WhatsApp. ClipShrink only uses `-c copy` when the video stream is verified 8-bit `h264`, transcoding audio-only (`-c:v copy -c:a aac`) when PCM/Opus audio is detected, and falling back to `libx264` when video transcoding is required.
+3. **Target-Size Bitrate Budgeting:** Rather than using arbitrary CRF values that can overshoot platform upload ceilings, the compressor calculates a target bitrate budget from the probed duration (`(targetMB * 8192) / durationSec`), reserves audio bandwidth, and automatically runs a second pass at `0.85x` bitrate if high-motion footage exceeds the byte ceiling.
+4. **Self-Hosted WASM Cores:** Both single-threaded (`/public/ffmpeg/`) and multi-threaded (`/public/ffmpeg-mt/`) WebAssembly binaries are served from same-origin static storage to avoid third-party CDN failures and CORS worker restrictions.
+
+---
+
+## Local Development
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Anas1602/clipshrink.git
+cd clipshrink
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Run the development server
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000` in your browser.
+
+---
+
+## Browser Support
+
+| Browser | Supported | Execution Mode |
+| :--- | :--- | :--- |
+| **Google Chrome / Edge** | Yes | Multi-threaded / Single-threaded WASM |
+| **Mozilla Firefox** | Yes | Multi-threaded / Single-threaded WASM |
+| **Apple Safari (macOS)** | Yes | JavaScriptCore WASM |
+| **Mobile Safari (iOS)** | Yes | Single-threaded WASM (150MB memory guard) |
+
+---
+
+## License
+
+Distributed under the MIT License.
